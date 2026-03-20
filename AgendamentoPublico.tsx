@@ -1,0 +1,218 @@
+import React, { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-client";
+import { 
+  Calendar, Clock, User, Sparkles, 
+  CheckCircle2, Loader2, ChevronRight, Phone, ShoppingBag 
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+// CONEXÃO DIRETA COM O SEU BANCO
+const supabaseUrl = "https://rahubkowehwtvditbhlx.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhaHVia293ZWh3dHZkaXRiaGx4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjAyMzMsImV4cCI6MjA4OTQzNjIzM30.ZB8-_m3G2hjWSV-SqJscUmYvQpC7iA020R2nu68PXPc";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export default function AgendamentoPublico() {
+  const [etapa, setEtapa] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
+  const [servicos, setServicos] = useState<any[]>([]);
+
+  const [form, setForm] = useState({
+    cliente_nome: "",
+    telefone: "",
+    servico: "",
+    data: "",
+    horario: "",
+    valor: 0
+  });
+
+  // Busca os serviços reais que você cadastrou no sistema
+  useEffect(() => {
+    async function fetchServicos() {
+      const { data } = await supabase.from("servicos").select("*");
+      setServicos(data || []);
+    }
+    fetchServicos();
+  }, []);
+
+  const finalizarAgendamento = async () => {
+    setLoading(true);
+    // Insere na tabela 'agendamentos' que o seu Dashboard BI lê
+    const { error } = await supabase.from("agendamentos").insert([
+      { 
+        cliente_nome: form.cliente_nome.toUpperCase(),
+        telefone: form.telefone,
+        servico: form.servico,
+        data: form.data,
+        horario: form.horario,
+        valor: form.valor,
+        status: "Pendente" // Cai como pendente para você confirmar no ADM
+      }
+    ]);
+
+    if (!error) {
+      setSucesso(true);
+    } else {
+      alert("Erro ao salvar agendamento. Verifique os dados.");
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
+  if (sucesso) return (
+    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-6">
+      <motion.div initial={{scale:0.9, opacity:0}} animate={{scale:1, opacity:1}} className="bg-white p-10 rounded-[40px] shadow-2xl border border-zinc-100 max-w-sm w-full text-center">
+        <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={40} strokeWidth={3} />
+        </div>
+        <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 text-zinc-900">Confirmado!</h2>
+        <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">
+          Tudo pronto, {form.cliente_nome.split(' ')[0]}! <br/> Sua reserva na Rivi Silva Esmalteria foi realizada com sucesso.
+        </p>
+      </motion.div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#fafafa] text-zinc-900 selection:bg-[#f09f0a]/20 font-sans">
+      <div className="max-w-xl mx-auto px-6 py-10 md:py-16 flex flex-col min-h-screen">
+        
+        {/* LOGO & HEADER */}
+        <header className="text-center mb-10 space-y-4">
+          <div className="flex flex-col items-center">
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl border border-zinc-50 mb-6 overflow-hidden p-2">
+               {/* Espaço para a sua Logo */}
+               <div className="w-full h-full bg-[#f09f0a] rounded-full flex items-center justify-center text-white font-black italic text-2xl shadow-inner">RS</div>
+            </div>
+            <div className="flex items-center gap-2 text-[#f09f0a]">
+              <Sparkles size={14} fill="currentColor" />
+              <span className="text-[9px] font-black uppercase tracking-[0.5em]"> Nails & Care</span>
+            </div>
+            <h1 className="text-4xl font-black italic uppercase tracking-tighter leading-none mt-2">
+              Agendamento <span className="text-[#f09f0a]">Online</span>
+            </h1>
+          </div>
+        </header>
+
+        {/* BOX DE AGENDAMENTO */}
+        <main className="flex-1">
+          <div className="bg-white rounded-[45px] p-8 md:p-10 shadow-2xl shadow-zinc-200/40 border border-white">
+            
+            {/* PROGRESSO */}
+            <div className="flex justify-between mb-10 gap-2">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${etapa >= n ? 'bg-[#f09f0a]' : 'bg-zinc-100'}`} />
+              ))}
+            </div>
+
+            <AnimatePresence mode="wait">
+              {/* ETAPA 1: CLIENTE */}
+              {etapa === 1 && (
+                <motion.div key="e1" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }} className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="relative group">
+                      <User className="absolute left-6 top-6 text-zinc-300 group-focus-within:text-[#f09f0a] transition-colors" size={20} />
+                      <input 
+                        className="w-full bg-zinc-50 rounded-[22px] py-6 pl-16 pr-6 font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 focus:bg-white transition-all uppercase text-sm"
+                        placeholder="SEU NOME COMPLETO"
+                        value={form.cliente_nome}
+                        onChange={(e) => setForm({...form, cliente_nome: e.target.value})}
+                      />
+                    </div>
+                    <div className="relative group">
+                      <Phone className="absolute left-6 top-6 text-zinc-300 group-focus-within:text-[#f09f0a] transition-colors" size={20} />
+                      <input 
+                        className="w-full bg-zinc-50 rounded-[22px] py-6 pl-16 pr-6 font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 focus:bg-white transition-all text-sm"
+                        placeholder="WHATSAPP (DDD + NÚMERO)"
+                        type="tel"
+                        value={form.telefone}
+                        onChange={(e) => setForm({...form, telefone: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <button 
+                    disabled={!form.cliente_nome || !form.telefone}
+                    onClick={() => setEtapa(2)}
+                    className="w-full bg-black text-white py-6 rounded-full font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 hover:bg-[#f09f0a] disabled:opacity-10 transition-all shadow-lg active:scale-95"
+                  >
+                    Ver Procedimentos <ChevronRight size={16} />
+                  </button>
+                </motion.div>
+              )}
+
+              {/* ETAPA 2: SERVIÇOS */}
+              {etapa === 2 && (
+                <motion.div key="e2" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }} className="space-y-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center mb-4">Selecione o serviço desejado</p>
+                  <div className="grid grid-cols-1 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                    {servicos.length > 0 ? servicos.map((s) => (
+                      <button 
+                        key={s.id}
+                        onClick={() => { setForm({...form, servico: s.nome, valor: s.preco}); setEtapa(3); }}
+                        className={`p-6 rounded-[28px] border-2 text-left transition-all flex justify-between items-center ${form.servico === s.nome ? 'border-[#f09f0a] bg-[#fff8eb]' : 'border-zinc-50 bg-zinc-50/50 hover:border-zinc-200'}`}
+                      >
+                        <div>
+                            <p className="font-black uppercase italic text-sm text-zinc-800">{s.nome}</p>
+                            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-tight italic">Serviço Premium</p>
+                        </div>
+                        <span className="font-black text-[#f09f0a] text-lg italic">R$ {s.preco}</span>
+                      </button>
+                    )) : (
+                        <p className="text-center text-zinc-300 py-10 font-bold uppercase text-[10px]">Nenhum serviço disponível no momento</p>
+                    )}
+                  </div>
+                  <button onClick={() => setEtapa(1)} className="w-full py-4 text-[9px] font-black uppercase text-zinc-300 tracking-[0.4em]">Voltar</button>
+                </motion.div>
+              )}
+
+              {/* ETAPA 3: DATA/HORA */}
+              {etapa === 3 && (
+                <motion.div key="e3" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 ml-2">Melhor Data</label>
+                        <input type="date" className="w-full bg-zinc-50 p-6 rounded-[22px] font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 text-sm" onChange={(e) => setForm({...form, data: e.target.value})} />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 ml-2">Melhor Horário</label>
+                        <input type="time" className="w-full bg-zinc-50 p-6 rounded-[22px] font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 text-sm" onChange={(e) => setForm({...form, horario: e.target.value})} />
+                    </div>
+                  </div>
+
+                  <div className="bg-[#fff8eb] p-6 rounded-[25px] border border-[#f09f0a]/10 flex items-center gap-4">
+                     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#f09f0a] shadow-sm">
+                        <ShoppingBag size={20} />
+                     </div>
+                     <div>
+                        <p className="text-[9px] font-black text-[#f09f0a] uppercase tracking-widest">Resumo da Escolha</p>
+                        <p className="font-black text-zinc-800 text-sm uppercase italic">{form.servico} - R$ {form.valor}</p>
+                     </div>
+                  </div>
+
+                  <button 
+                    disabled={!form.data || !form.horario || loading}
+                    onClick={finalizarAgendamento}
+                    className="w-full bg-black text-white py-7 rounded-full font-black uppercase tracking-[0.4em] text-[10px] flex items-center justify-center gap-4 hover:bg-[#f09f0a] transition-all shadow-2xl active:scale-95"
+                  >
+                    {loading ? <Loader2 className="animate-spin" /> : "Finalizar Reserva Agora"}
+                  </button>
+                  <button onClick={() => setEtapa(2)} className="w-full py-2 text-[9px] font-black uppercase text-zinc-300 tracking-[0.4em]">Trocar Procedimento</button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </main>
+
+        <footer className="mt-12 text-center text-[9px] font-black text-zinc-300 uppercase tracking-[0.5em]">
+           Rivi Silva © 2026 • Premium Experience
+        </footer>
+      </div>
+
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f09f0a30; border-radius: 10px; }
+      `}</style>
+    </div>
+  );
+}
