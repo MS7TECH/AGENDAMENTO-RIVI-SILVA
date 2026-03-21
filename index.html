@@ -1,218 +1,179 @@
-import React, { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-client";
-import { 
-  Calendar, Clock, User, Sparkles, 
-  CheckCircle2, Loader2, ChevronRight, Phone, ShoppingBag 
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-
-// CONEXÃO DIRETA COM O SEU BANCO
-const supabaseUrl = "https://rahubkowehwtvditbhlx.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhaHVia293ZWh3dHZkaXRiaGx4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjAyMzMsImV4cCI6MjA4OTQzNjIzM30.ZB8-_m3G2hjWSV-SqJscUmYvQpC7iA020R2nu68PXPc";
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export default function AgendamentoPublico() {
-  const [etapa, setEtapa] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [sucesso, setSucesso] = useState(false);
-  const [servicos, setServicos] = useState<any[]>([]);
-
-  const [form, setForm] = useState({
-    cliente_nome: "",
-    telefone: "",
-    servico: "",
-    data: "",
-    horario: "",
-    valor: 0
-  });
-
-  // Busca os serviços reais que você cadastrou no sistema
-  useEffect(() => {
-    async function fetchServicos() {
-      const { data } = await supabase.from("servicos").select("*");
-      setServicos(data || []);
-    }
-    fetchServicos();
-  }, []);
-
-  const finalizarAgendamento = async () => {
-    setLoading(true);
-    // Insere na tabela 'agendamentos' que o seu Dashboard BI lê
-    const { error } = await supabase.from("agendamentos").insert([
-      { 
-        cliente_nome: form.cliente_nome.toUpperCase(),
-        telefone: form.telefone,
-        servico: form.servico,
-        data: form.data,
-        horario: form.horario,
-        valor: form.valor,
-        status: "Pendente" // Cai como pendente para você confirmar no ADM
-      }
-    ]);
-
-    if (!error) {
-      setSucesso(true);
-    } else {
-      alert("Erro ao salvar agendamento. Verifique os dados.");
-      console.error(error);
-    }
-    setLoading(false);
-  };
-
-  if (sucesso) return (
-    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center p-6">
-      <motion.div initial={{scale:0.9, opacity:0}} animate={{scale:1, opacity:1}} className="bg-white p-10 rounded-[40px] shadow-2xl border border-zinc-100 max-w-sm w-full text-center">
-        <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 size={40} strokeWidth={3} />
-        </div>
-        <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 text-zinc-900">Confirmado!</h2>
-        <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">
-          Tudo pronto, {form.cliente_nome.split(' ')[0]}! <br/> Sua reserva na Rivi Silva Esmalteria foi realizada com sucesso.
-        </p>
-      </motion.div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-[#fafafa] text-zinc-900 selection:bg-[#f09f0a]/20 font-sans">
-      <div className="max-w-xl mx-auto px-6 py-10 md:py-16 flex flex-col min-h-screen">
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento | Rivi Silva Esmalteria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#D4AF37',
+                        'gold-light': '#F5E6A3',
+                        black: '#0A0A0A',
+                        'zinc-900': '#1A1A1A',
+                    },
+                    fontFamily: {
+                        logo: ['Cinzel Decorative', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #0A0A0A;
+            color: #FFFFFF;
+            font-family: 'Montserrat', sans-serif;
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(212, 175, 55, 0.05) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(212, 175, 55, 0.05) 0px, transparent 50%);
+        }
+        .luxury-card {
+            background-color: #1A1A1A;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.1);
+        }
+        .gold-gradient-bg {
+            background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 100%);
+            color: #0A0A0A;
+        }
+        .gold-text-gradient {
+            background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-input {
+            background-color: rgba(0,0,0,0.5) !important;
+            border: 1px solid rgba(212, 175, 55, 0.1) !important;
+            color: white !important;
+        }
+        .form-input:focus {
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 1px #D4AF37 !important;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
+    
+    <header class="w-full max-w-7xl flex flex-col items-center mb-10 mt-4">
+        <img src="logo.png" alt="Rivi Silva Esmalteria Logo" class="h-24 md:h-32 w-auto mb-3">
         
-        {/* LOGO & HEADER */}
-        <header className="text-center mb-10 space-y-4">
-          <div className="flex flex-col items-center">
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl border border-zinc-50 mb-6 overflow-hidden p-2">
-               {/* Espaço para a sua Logo */}
-               <div className="w-full h-full bg-[#f09f0a] rounded-full flex items-center justify-center text-white font-black italic text-2xl shadow-inner">RS</div>
+        <p class="font-sans text-xs uppercase tracking-[0.5em] text-zinc-400 text-center">
+            ESMALTERIA PREMIVM
+        </p>
+    </header>
+
+    <main class="w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        
+        <div class="flex flex-col gap-6 md:pr-10">
+            <h2 class="text-4xl font-light text-zinc-100 leading-tight">
+                Seu momento de brilhar começa aqui, <span class="font-semibold text-white">gata. 💅</span>
+            </h2>
+            <p class="text-zinc-400 text-lg">
+                Agende o seu horário de forma rápida e segura na Rivi Silva Esmalteria. Escolha o melhor dia, o serviço de luxo que você merece e deixe o resto conosco.
+            </p>
+            <div class="luxury-card p-6 rounded-2xl border-l-4 border-l-gold">
+                <p class="text-sm text-zinc-400">Próximos passos:</p>
+                <p class="text-xl font-medium">Preencha o formulário e receba sua confirmação instantânea.</p>
+            }
+        </div>
+
+        <div class="w-full luxury-card p-8 md:p-10 rounded-3xl">
+            <h3 class="text-2xl font-semibold mb-8 border-b border-zinc-800 pb-4">
+                Solicitar Agendamento
+            </h3>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-zinc-300 mb-2">Seu Nome Completo</label>
+                    <input id="nome" type="text" placeholder="Ex: Maria Eduarda..." class="form-input w-full p-4 rounded-xl text-lg">
+                }
+
+                <div>
+                    <label class="block text-sm font-medium text-zinc-300 mb-2">Serviço Desejado</label>
+                    <select id="servico" class="form-input w-full p-4 rounded-xl text-lg cursor-pointer">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="Alongamento Gel">Alongamento em Gel (Premium)</option>
+                        <option value="Banho Gel">Banho de Gel (Brilho Intenso)</option>
+                        <option value="Manicure Simples">Manicure Simples (Clássica)</option>
+                        <option value="Pedicure Simples">Pedicure Simples</option>
+                    </select>
+                }
+
+                <div>
+                    <label class="block text-sm font-medium text-zinc-300 mb-2">Data e Hora</label>
+                    <input id="data" type="datetime-local" class="form-input w-full p-4 rounded-xl text-lg cursor-pointer">
+                }
+
+                <button onclick="agendar()" class="w-full gold-gradient-bg font-bold py-5 rounded-xl text-lg uppercase tracking-widest hover:brightness-110 transition duration-300 transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-gold/10">
+                    CONFIRMAR AGENDAMENTO ✨
+                </button>
             </div>
-            <div className="flex items-center gap-2 text-[#f09f0a]">
-              <Sparkles size={14} fill="currentColor" />
-              <span className="text-[9px] font-black uppercase tracking-[0.5em]"> Nails & Care</span>
-            </div>
-            <h1 className="text-4xl font-black italic uppercase tracking-tighter leading-none mt-2">
-              Agendamento <span className="text-[#f09f0a]">Online</span>
-            </h1>
-          </div>
-        </header>
+        </div>
 
-        {/* BOX DE AGENDAMENTO */}
-        <main className="flex-1">
-          <div className="bg-white rounded-[45px] p-8 md:p-10 shadow-2xl shadow-zinc-200/40 border border-white">
-            
-            {/* PROGRESSO */}
-            <div className="flex justify-between mb-10 gap-2">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${etapa >= n ? 'bg-[#f09f0a]' : 'bg-zinc-100'}`} />
-              ))}
-            </div>
+    </main>
 
-            <AnimatePresence mode="wait">
-              {/* ETAPA 1: CLIENTE */}
-              {etapa === 1 && (
-                <motion.div key="e1" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }} className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="relative group">
-                      <User className="absolute left-6 top-6 text-zinc-300 group-focus-within:text-[#f09f0a] transition-colors" size={20} />
-                      <input 
-                        className="w-full bg-zinc-50 rounded-[22px] py-6 pl-16 pr-6 font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 focus:bg-white transition-all uppercase text-sm"
-                        placeholder="SEU NOME COMPLETO"
-                        value={form.cliente_nome}
-                        onChange={(e) => setForm({...form, cliente_nome: e.target.value})}
-                      />
-                    </div>
-                    <div className="relative group">
-                      <Phone className="absolute left-6 top-6 text-zinc-300 group-focus-within:text-[#f09f0a] transition-colors" size={20} />
-                      <input 
-                        className="w-full bg-zinc-50 rounded-[22px] py-6 pl-16 pr-6 font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 focus:bg-white transition-all text-sm"
-                        placeholder="WHATSAPP (DDD + NÚMERO)"
-                        type="tel"
-                        value={form.telefone}
-                        onChange={(e) => setForm({...form, telefone: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <button 
-                    disabled={!form.cliente_nome || !form.telefone}
-                    onClick={() => setEtapa(2)}
-                    className="w-full bg-black text-white py-6 rounded-full font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 hover:bg-[#f09f0a] disabled:opacity-10 transition-all shadow-lg active:scale-95"
-                  >
-                    Ver Procedimentos <ChevronRight size={16} />
-                  </button>
-                </motion.div>
-              )}
+    <footer class="w-full max-w-7xl mt-20 pt-8 border-t border-zinc-900 text-center text-zinc-600 text-sm">
+        <p>&copy; 2026 Rivi Silva Esmalteria. Todos os direitos reservados. Design de Luxo.</p>
+    </footer>
 
-              {/* ETAPA 2: SERVIÇOS */}
-              {etapa === 2 && (
-                <motion.div key="e2" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }} className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center mb-4">Selecione o serviço desejado</p>
-                  <div className="grid grid-cols-1 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                    {servicos.length > 0 ? servicos.map((s) => (
-                      <button 
-                        key={s.id}
-                        onClick={() => { setForm({...form, servico: s.nome, valor: s.preco}); setEtapa(3); }}
-                        className={`p-6 rounded-[28px] border-2 text-left transition-all flex justify-between items-center ${form.servico === s.nome ? 'border-[#f09f0a] bg-[#fff8eb]' : 'border-zinc-50 bg-zinc-50/50 hover:border-zinc-200'}`}
-                      >
-                        <div>
-                            <p className="font-black uppercase italic text-sm text-zinc-800">{s.nome}</p>
-                            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-tight italic">Serviço Premium</p>
-                        </div>
-                        <span className="font-black text-[#f09f0a] text-lg italic">R$ {s.preco}</span>
-                      </button>
-                    )) : (
-                        <p className="text-center text-zinc-300 py-10 font-bold uppercase text-[10px]">Nenhum serviço disponível no momento</p>
-                    )}
-                  </div>
-                  <button onClick={() => setEtapa(1)} className="w-full py-4 text-[9px] font-black uppercase text-zinc-300 tracking-[0.4em]">Voltar</button>
-                </motion.div>
-              )}
+    <script>
+        // CONFIGURAÇÃO DO SEU BANCO (Copie do seu Supabase)
+        const supabaseUrl = 'https://rahubkowehwtvditbhlx.supabase.co';
+        // ATENÇÃO: COLOQUE SUA CHAVE ANON AQUI:
+        const supabaseKey = 'SUA_CHAVE_ANON_AQUI'; 
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-              {/* ETAPA 3: DATA/HORA */}
-              {etapa === 3 && (
-                <motion.div key="e3" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 ml-2">Melhor Data</label>
-                        <input type="date" className="w-full bg-zinc-50 p-6 rounded-[22px] font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 text-sm" onChange={(e) => setForm({...form, data: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-zinc-400 ml-2">Melhor Horário</label>
-                        <input type="time" className="w-full bg-zinc-50 p-6 rounded-[22px] font-bold outline-none border-2 border-transparent focus:border-[#f09f0a]/20 text-sm" onChange={(e) => setForm({...form, horario: e.target.value})} />
-                    </div>
-                  </div>
+        async function agendar() {
+            // Pegar os valores
+            const nomeValue = document.getElementById('nome').value;
+            const servicoValue = document.getElementById('servico').value;
+            const dataValue = document.getElementById('data').value;
+            const btn = document.querySelector('button');
 
-                  <div className="bg-[#fff8eb] p-6 rounded-[25px] border border-[#f09f0a]/10 flex items-center gap-4">
-                     <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#f09f0a] shadow-sm">
-                        <ShoppingBag size={20} />
-                     </div>
-                     <div>
-                        <p className="text-[9px] font-black text-[#f09f0a] uppercase tracking-widest">Resumo da Escolha</p>
-                        <p className="font-black text-zinc-800 text-sm uppercase italic">{form.servico} - R$ {form.valor}</p>
-                     </div>
-                  </div>
+            // Validação simples
+            if(!nomeValue || !servicoValue || !dataValue) {
+                return alert("Falta preencher alguns campos gata! 💅💖");
+            }
 
-                  <button 
-                    disabled={!form.data || !form.horario || loading}
-                    onClick={finalizarAgendamento}
-                    className="w-full bg-black text-white py-7 rounded-full font-black uppercase tracking-[0.4em] text-[10px] flex items-center justify-center gap-4 hover:bg-[#f09f0a] transition-all shadow-2xl active:scale-95"
-                  >
-                    {loading ? <Loader2 className="animate-spin" /> : "Finalizar Reserva Agora"}
-                  </button>
-                  <button onClick={() => setEtapa(2)} className="w-full py-2 text-[9px] font-black uppercase text-zinc-300 tracking-[0.4em]">Trocar Procedimento</button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </main>
+            // Feedback visual no botão
+            btn.innerHTML = "Processando seu luxo... ⏳";
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
 
-        <footer className="mt-12 text-center text-[9px] font-black text-zinc-300 uppercase tracking-[0.5em]">
-           Rivi Silva © 2026 • Premium Experience
-        </footer>
-      </div>
+            // Tentar salvar no banco (Confirme o nome da tabela e colunas no Supabase)
+            const { error } = await _supabase
+                .from('agendamentos') // Sua tabela precisa ter esse nome
+                .insert([{ 
+                    nome_cliente: nomeValue, 
+                    servico: servicoValue, 
+                    data_hora: dataValue 
+                }]);
 
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f09f0a30; border-radius: 10px; }
-      `}</style>
-    </div>
-  );
-}
+            if (error) {
+                console.error('Erro detalhado:', error);
+                alert('Deu um pequeno erro ao agendar. Verifique as configurações da tabela!');
+                // Restaura o botão
+                btn.innerHTML = "CONFIRMAR AGENDAMENTO ✨";
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            } else {
+                alert('Agendamento feito com sucesso! Prepara que você vai arrasar! ✨💖💅');
+                location.reload(); // Recarrega a página para limpar
+            }
+        }
+    </script>
+</body>
+</html>
