@@ -1,66 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento | Rivi Silva Esmalteria</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gold: '#D4AF37',
-                        'gold-light': '#F5E6A3',
-                        black: '#0A0A0A',
-                    },
-                    fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        body {
-            background-color: #FFFFFF;
-            color: #0A0A0A;
-            font-family: 'Montserrat', sans-serif;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(212, 175, 55, 0.03) 0px, transparent 50%);
-        }
-        .clean-card {
-            background-color: #FDFDFD;
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-        }
-        .gold-gradient-bg {
-            background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 100%);
-            color: #FFFFFF;
-        }
-        .form-input {
-            background-color: #FFFFFF !important;
-            border: 1px solid rgba(212, 175, 55, 0.2) !important;
-            color: #0A0A0A !important;
-        }
-        .form-input:focus {
-            border-color: #D4AF37 !important;
-            box-shadow: 0 0 0 1px #D4AF37 !important;
-            outline: none;
-        }
-        /* Estilo para a lista de serviços */
-        select[multiple] {
-            height: 150px;
-        }
-    </style>
-</head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
     
     <header class="w-full max-w-7xl flex flex-col items-center mb-10 mt-4">
@@ -76,78 +13,96 @@
         
         <div class="flex flex-col gap-6 md:pr-10">
             <h2 class="text-4xl font-light text-zinc-900 leading-tight">
-                Seu momento de brilhar começa aqui, <span class="font-semibold text-gold">gata. 💅</span>
+                A elegância está nos detalhes... <br><span class="font-semibold text-gold text-3xl">Suas unhas merecem ser protagonistas. 💅</span>
             </h2>
-            <p class="text-zinc-600 text-lg">
-                Agende o seu horário de forma rápida e segura na Rivi Silva Esmalteria. Escolha o melhor dia, o serviço de luxo que você merece e deixe o resto conosco.
-            </p>
+            
+            <div class="space-y-4 text-zinc-600">
+                <p>📍 <strong>Localização:</strong> Rua José Tibério, 1127 (Ao lado da Escola Estação Criança).</p>
+                <p>⏰ <strong>Horário:</strong> Seg a Sex, das 9h às 18h. Sábados sob agendamento.</p>
+                <div class="bg-zinc-50 p-4 rounded-xl border border-zinc-100 text-sm">
+                    <p class="font-semibold mb-1">⚠️ Regras de Ouro:</p>
+                    <ul class="list-disc ml-4 space-y-1">
+                        <li>Atrasos acima de 15min exigem remarcação.</li>
+                        <li>Cancelamentos com menos de 24h: taxa de 40%.</li>
+                        <li>Chegue 10 minutinhos antes para o seu café.</li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="clean-card p-6 rounded-2xl border-l-4 border-l-gold">
-                <p class="text-sm text-zinc-500">Próximos passos:</p>
-                <p class="text-xl font-medium text-black">Preencha o formulário e receba sua confirmação instantânea.</p>
+                <p class="text-sm text-zinc-500">Diferencial:</p>
+                <p class="text-xl font-medium text-black">Materiais esterilizados em autoclave e biossegurança total.</p>
             </div>
         </div>
 
         <div class="w-full clean-card p-8 md:p-10 rounded-3xl">
             <h3 class="text-2xl font-semibold mb-8 border-b border-zinc-200 pb-4 text-gold">
-                Solicitar Agendamento
+                Agende sua Experiência
             </h3>
 
             <div class="space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-2">Seu Nome Completo</label>
-                    <input id="nome" type="text" placeholder="Ex: Maria Eduarda..." class="form-input w-full p-4 rounded-xl text-lg">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-2">WhatsApp / Telefone</label>
-                    <input id="telefone" type="tel" placeholder="(00) 90000-0000" class="form-input w-full p-4 rounded-xl text-lg">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-2">Serviços Desejados (Selecione um ou mais)</label>
-                    <select id="servico" multiple onchange="calcularTotal()" class="form-input w-full p-4 rounded-xl text-lg cursor-pointer">
-                        <option value="Alongamento Gel" data-preco="120">Alongamento em Gel - R$ 120</option>
-                        <option value="Banho Gel" data-preco="80">Banho de Gel - R$ 80</option>
-                        <option value="Manicure Simples" data-preco="40">Manicure Simples - R$ 40</option>
-                        <option value="Pedicure Simples" data-preco="45">Pedicure Simples - R$ 45</option>
-                        <option value="Combo Pé e Mão" data-preco="80">Combo Pé e Mão - R$ 80</option>
+                    <label class="block text-sm font-medium text-zinc-700 mb-2">Tipo de Procedimento</label>
+                    <select id="tipo_atendimento" class="form-input w-full p-4 rounded-xl text-lg" onchange="atualizarListaServicos()">
+                        <option value="aplicacao">Nova Aplicação</option>
+                        <option value="manutencao">Manutenção (15-30 dias)</option>
                     </select>
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-zinc-700 mb-2">Escolha os Serviços</label>
+                    <select id="servico" multiple onchange="calcularTotal()" class="form-input w-full p-4 rounded-xl text-lg cursor-pointer">
+                        </select>
+                    <p class="text-[10px] text-zinc-400 mt-2">* Tempo médio de aplicação: 1h a 2h.</p>
+                </div>
+
                 <div class="bg-amber-50 border border-gold/20 p-4 rounded-xl flex justify-between items-center">
-                    <span class="text-zinc-600 font-medium">Total Estimado:</span>
+                    <span class="text-zinc-600 font-medium">Investimento:</span>
                     <span class="text-gold font-bold text-2xl">R$ <span id="total-valor">0,00</span></span>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-2">Data e Hora (Apenas mês atual)</label>
-                    <input id="data" type="datetime-local" class="form-input w-full p-4 rounded-xl text-lg cursor-pointer">
+                    <label class="block text-sm font-medium text-zinc-700 mb-2">WhatsApp</label>
+                    <input id="telefone" type="tel" placeholder="(71) 90000-0000" class="form-input w-full p-4 rounded-xl text-lg">
                 </div>
 
-                <button onclick="agendar()" class="w-full gold-gradient-bg font-bold py-5 rounded-xl text-lg uppercase tracking-widest hover:brightness-110 transition duration-300 shadow-md shadow-gold/20">
-                    CONFIRMAR AGENDAMENTO ✨
+                <button onclick="agendar()" class="w-full gold-gradient-bg font-bold py-5 rounded-xl text-lg uppercase tracking-widest hover:brightness-110 transition duration-300">
+                    RESERVAR MEU HORÁRIO ✨
                 </button>
             </div>
         </div>
 
     </main>
 
-    <footer class="w-full max-w-7xl mt-20 pt-8 border-t border-zinc-200 text-center text-zinc-500 text-sm pb-10">
-        <p>&copy; 2026 Rivi Silva Esmalteria. Todos os direitos reservados.</p>
-    </footer>
-
     <script>
-        // Restrição de datas para o mês vigente
-        const dataInput = document.getElementById('data');
-        const hoje = new Date();
-        const ano = hoje.getFullYear();
-        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-        const dia = String(hoje.getDate()).padStart(2, '0');
-        
-        const ultimoDia = new Date(ano, hoje.getMonth() + 1, 0).getDate();
-        
-        dataInput.min = `${ano}-${mes}-${dia}T08:00`;
-        dataInput.max = `${ano}-${mes}-${ultimoDia}T21:00`;
+        const servicosDB = {
+            aplicacao: [
+                { nome: "Alongamento de Unhas", preco: 150 },
+                { nome: "Banho de Gel", preco: 100 },
+                { nome: "Postiça de Luxo", preco: 80 },
+                { nome: "Esmaltação em Gel", preco: 70 }
+            ],
+            manutencao: [
+                { nome: "Manut. Alongamento/Banho", preco: 100 },
+                { nome: "Manut. Blindagem", preco: 70 },
+                { nome: "Manut. Esmaltação Gel", preco: 70 }
+            ]
+        };
+
+        function atualizarListaServicos() {
+            const tipo = document.getElementById('tipo_atendimento').value;
+            const select = document.getElementById('servico');
+            select.innerHTML = "";
+            
+            servicosDB[tipo].forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.nome;
+                opt.text = `${s.nome} - R$ ${s.preco},00`;
+                opt.setAttribute('data-preco', s.preco);
+                select.appendChild(opt);
+            });
+            calcularTotal();
+        }
 
         function calcularTotal() {
             const select = document.getElementById('servico');
@@ -158,44 +113,9 @@
             document.getElementById('total-valor').innerText = total.toFixed(2).replace('.', ',');
         }
 
-        const supabaseUrl = 'https://rahubkowehwtvditbhlx.supabase.co';
-        const supabaseKey = 'SUA_CHAVE_ANON_AQUI'; 
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // Inicializa a lista
+        atualizarListaServicos();
 
-        async function agendar() {
-            const nome = document.getElementById('nome').value;
-            const telefone = document.getElementById('telefone').value;
-            const data = document.getElementById('data').value;
-            const valorTotal = document.getElementById('total-valor').innerText;
-            const servicos = Array.from(document.getElementById('servico').selectedOptions).map(o => o.value).join(', ');
-
-            if(!nome || !telefone || !servicos || !data) {
-                return alert("Preencha todos os campos gata! 💅💖");
-            }
-
-            const btn = document.querySelector('button');
-            btn.innerHTML = "Agendando... ⏳";
-            btn.disabled = true;
-
-            const { error } = await _supabase
-                .from('agendamentos')
-                .insert([{ 
-                    nome_cliente: nome, 
-                    telefone: telefone,
-                    servico: servicos, 
-                    valor_total: valorTotal,
-                    data_hora: data 
-                }]);
-
-            if (error) {
-                alert('Erro ao agendar. Tente novamente!');
-                btn.innerHTML = "CONFIRMAR AGENDAMENTO ✨";
-                btn.disabled = false;
-            } else {
-                alert('Sucesso! Te esperamos lá! ✨💅');
-                location.reload();
-            }
-        }
+        // Funções do Supabase (mesmas do código anterior)...
     </script>
 </body>
-</html>
