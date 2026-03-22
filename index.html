@@ -81,7 +81,6 @@
             const hoje = new Date();
             const mesAnoKey = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
 
-            // 1. Busca Configurações e Trava de Mês
             const [resConfig, resMeses, resBloqueios] = await Promise.all([
                 _supabase.from('agenda_config').select('*').eq('id', 1).single(),
                 _supabase.from('meses_liberados').select('liberado').eq('mes_ano', mesAnoKey).single(),
@@ -96,7 +95,6 @@
                 };
             }
 
-            // Se o mês não estiver liberado, avisa a cliente
             if (!resMeses.data || !resMeses.data.liberado) {
                 container.innerHTML = `<p class="col-span-7 text-center text-xs text-zinc-400 py-4 italic">Agenda deste mês ainda não liberada pela Rivi. 🔒</p>`;
                 return;
@@ -123,12 +121,10 @@
             carregarServicos();
         }
 
-        // FUNÇÃO QUE GERA OS HORÁRIOS COM BASE NO INTERVALO DO SISTEMA
         function gerarHorariosSlots(inicio, fim, intervalo) {
             const slots = [];
             let atual = new Date(`2026-01-01T${inicio}:00`);
             const limite = new Date(`2026-01-01T${fim}:00`);
-
             while (atual < limite) {
                 slots.push(atual.toTimeString().substring(0, 5));
                 atual.setMinutes(atual.getMinutes() + intervalo);
@@ -145,11 +141,12 @@
             document.getElementById('section-horarios').classList.remove('hidden');
             document.getElementById('display-date').innerText = data.split('-').reverse().join('/');
 
+            // Buscando pela coluna correta do sistema administrativo: 'horario' e 'data_atendimento'
             const { data: ocupados } = await _supabase.from('agendamentos')
-                .select('horario_agendado')
-                .eq('data_agendada', data);
+                .select('horario')
+                .eq('data_atendimento', data);
             
-            const listaOcupados = ocupados?.map(o => o.horario_agendado.substring(0, 5)) || [];
+            const listaOcupados = ocupados?.map(o => o.horario.substring(0, 5)) || [];
             const horariosParaExibir = gerarHorariosSlots(configAgenda.inicio, configAgenda.fim, configAgenda.intervalo);
 
             const slotsDiv = document.getElementById('time-slots');
@@ -172,14 +169,13 @@
             });
         }
 
-        // Funções de carregarServicos, calcTotal e finalizarAgendamento permanecem as mesmas
         async function carregarServicos() {
             const { data } = await _supabase.from('servicos').select('*').order('nome');
             if(data) {
                 document.getElementById('listaServicos').innerHTML = data.map(s => `
                     <label class="flex justify-between items-center p-3 hover:bg-zinc-50 cursor-pointer">
                         <div class="flex items-center gap-3">
-                            <input type="checkbox" value="${s.id}" data-price="${s.preco}" onchange="calcTotal()" class="accent-gold w-4 h-4">
+                            <input type="checkbox" value="${s.nome}" data-price="${s.preco}" onchange="calcTotal()" class="accent-gold w-4 h-4">
                             <span class="text-sm font-medium text-zinc-700">${s.nome}</span>
                         </div>
                         <span class="text-zinc-400 text-xs font-bold">R$ ${s.preco}</span>
@@ -198,6 +194,7 @@
             const nome = document.getElementById('nome').value;
             const zap = document.getElementById('whatsapp').value;
             const svs = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
+            const total = document.getElementById('totalDisplay').innerText.replace('R$ ', '').replace(',', '.');
             const btn = document.getElementById('btnAgendar');
 
             if(!nome || !zap || !dataSelecionada || !horaSelecionada || svs.length === 0) {
@@ -205,14 +202,29 @@
             }
 
             btn.innerText = "RESERVANDO... ✨";
-            const { error } = await _supabase.from('agendamentos').insert([{
-                cliente_nome: nome, cliente_whatsapp: zap,
-                data_agendada: dataSelecionada, horario_agendado: horaSelecionada,
-                servico_id: svs[0]
-            }]);
+            btn.disabled = true;
 
-            if(error) alert(error.message);
-            else { alert("AGENDADO COM SUCESSO! 💖"); location.reload(); }
+            // Payload 100% compatível com as colunas do seu sistema administrativo
+            const payload = {
+                cliente_nome: nome.toUpperCase(),
+                telefone: zap,
+                data_atendimento: dataSelecionada,
+                horario: horaSelecionada,
+                servico: svs.join(", "),
+                valor: parseFloat(total),
+                status: "Aguardando"
+            };
+
+            const { error } = await _supabase.from('agendamentos').insert([payload]);
+
+            if(error) {
+                alert("Erro ao agendar: " + error.message);
+                btn.innerText = "CONFIRMAR AGENDAMENTO ✨";
+                btn.disabled = false;
+            } else {
+                alert("AGENDADO COM SUCESSO! 💖");
+                location.reload();
+            }
         }
 
         init();
