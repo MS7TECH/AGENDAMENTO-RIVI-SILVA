@@ -26,6 +26,10 @@
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
 
+    <div class="mb-8">
+        <img src="logo.png" alt="Rivi Silva Esmalteria" class="h-24 md:h-32 object-contain">
+    </div>
+
     <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div class="flex flex-col gap-6 lg:pr-10">
             <h2 class="text-4xl md:text-5xl font-light text-zinc-900 leading-tight">
@@ -141,7 +145,6 @@
             document.getElementById('section-horarios').classList.remove('hidden');
             document.getElementById('display-date').innerText = data.split('-').reverse().join('/');
 
-            // Buscando horários ocupados usando as colunas do seu sistema administrativo
             const { data: ocupados } = await _supabase.from('agendamentos')
                 .select('horario')
                 .eq('data_atendimento', data);
@@ -204,13 +207,12 @@
             btn.innerText = "RESERVANDO... ✨";
             btn.disabled = true;
 
-            // Criando o objeto com as colunas EXATAS da sua tabela agendamentos
             const payload = {
                 cliente_nome: nome.toUpperCase(),
                 telefone: zap,
                 data_atendimento: dataSelecionada,
                 horario: horaSelecionada,
-                servico: svs.join(", "), // Concatena os nomes dos serviços selecionados
+                servico: svs.join(", "),
                 valor: parseFloat(totalTexto),
                 status: "Aguardando"
             };
@@ -218,7 +220,7 @@
             const { error } = await _supabase.from('agendamentos').insert([payload]);
 
             if(error) {
-                alert("Erro ao salvar agendamento: " + error.message);
+                alert("Erro ao salvar: " + error.message);
                 btn.innerText = "CONFIRMAR AGENDAMENTO ✨";
                 btn.disabled = false;
             } else {
