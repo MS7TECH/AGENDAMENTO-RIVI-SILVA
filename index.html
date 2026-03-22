@@ -4,235 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendamento | Rivi Silva Esmalteria</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gold: '#D4AF37',
-                        'gold-light': '#F5E6A3',
-                        black: '#0A0A0A',
-                    },
-                    fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #FFFFFF;
-            color: #0A0A0A;
-            font-family: 'Montserrat', sans-serif;
-            background-image: radial-gradient(at 10% 10%, rgba(212, 175, 55, 0.03) 0px, transparent 50%);
-        }
-        .clean-card {
-            background-color: #FDFDFD;
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-        }
-        .gold-gradient-bg {
-            background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 100%);
-            color: #FFFFFF;
-        }
-        .form-input {
-            background-color: #FFFFFF !important;
-            border: 1px solid rgba(212, 175, 55, 0.2) !important;
-        }
-        .form-input:focus {
-            border-color: #D4AF37 !important;
-            box-shadow: 0 0 0 1px #D4AF37 !important;
-            outline: none;
-        }
-        .service-item {
-            transition: all 0.2s;
-            border: 1px solid rgba(212, 175, 55, 0.05);
-        }
-        .service-item:hover {
-            border-color: #D4AF37;
-            background-color: rgba(212, 175, 55, 0.02);
-        }
-        input[type="checkbox"]:checked + label {
-            color: #D4AF37;
-            font-weight: 600;
-        }
+        body { font-family: 'Montserrat', sans-serif; background: #fdfdfd; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .day-box { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 1px solid #eee; font-size: 0.85rem; }
+        .day-free { background: #ecfdf5; color: #059669; border-color: #a7f3d0; } /* Verde */
+        .day-busy { background: #fef2f2; color: #dc2626; cursor: not-allowed; opacity: 0.6; } /* Vermelho */
+        .day-selected { background: #D4AF37 !important; color: white !important; border-color: #B8860B !important; }
+        .time-slot { padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; }
+        .time-slot:hover { border-color: #D4AF37; color: #D4AF37; }
+        .time-selected { background: #D4AF37; color: white; border-color: #D4AF37; }
     </style>
 </head>
-<body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
-    
-    <header class="w-full max-w-7xl flex flex-col items-center mb-10 mt-4">
-        <div class="h-24 md:h-32 w-24 md:w-32 rounded-full overflow-hidden border-2 border-gold mb-3 shadow-lg bg-zinc-100">
-            <img src="image_5.png" alt="Rivi Silva" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=Rivi+Silva'">
-        </div>
-        <p class="font-sans text-xs uppercase tracking-[0.5em] text-zinc-500 text-center">
-            ESMALTERIA PREMIVM
-        </p>
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-light text-zinc-800">Rivi Silva <span class="font-bold text-gold text-[#D4AF37]">Esmalteria</span></h1>
+        <p class="text-zinc-500 text-sm uppercase tracking-widest mt-2">Escolha seu dia e brilhe</p>
     </header>
 
-    <main class="w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        <div class="flex flex-col gap-6 md:pr-10">
-            <h2 class="text-4xl font-light text-zinc-900 leading-tight">
-                Seu momento de brilhar começa aqui, <span class="font-semibold text-gold">gata. 💅</span>
-            </h2>
-            <p class="text-zinc-600 text-lg">
-                Agende o seu horário de forma rápida e segura na Rivi Silva Esmalteria. Escolha o melhor dia e o serviço de luxo que você merece.
-            </p>
-            <div class="clean-card p-6 rounded-2xl border-l-4 border-l-gold">
-                <p class="text-sm text-zinc-500 italic">"Beleza é sobre ser a melhor versão de você mesma."</p>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="monthName" class="font-bold text-zinc-700 capitalize">Março 2026</h3>
+            </div>
+            
+            <div class="calendar-grid text-center text-xs font-bold text-zinc-400 mb-2">
+                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+            </div>
+            <div id="calendarDays" class="calendar-grid">
+                </div>
+            
+            <div class="mt-4 flex gap-4 text-xs">
+                <div class="flex items-center gap-1"><span class="w-3 h-3 bg-green-100 border border-green-300 rounded"></span> Livre</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 bg-red-100 border border-red-300 rounded"></span> Ocupado</div>
             </div>
         </div>
 
-        <div class="w-full clean-card p-8 md:p-10 rounded-3xl">
-            <h3 class="text-2xl font-semibold mb-8 border-b border-zinc-200 pb-4 text-gold text-center">
-                Solicitar Agendamento
-            </h3>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100">
+            <div id="step-info">
+                <p class="text-zinc-400 text-center py-10">Selecione um dia no calendário para ver os horários. ✨</p>
+            </div>
 
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-2">Seu Nome Completo</label>
-                    <input id="nome" type="text" placeholder="Ex: Maria Eduarda..." class="form-input w-full p-4 rounded-xl text-lg">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-2">WhatsApp</label>
-                    <input id="whatsapp" type="tel" placeholder="(00) 00000-0000" class="form-input w-full p-4 rounded-xl text-lg">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-3">Escolha os Serviços</label>
-                    <div id="listaServicos" class="grid grid-cols-1 gap-2 max-h-52 overflow-y-auto pr-2 mb-4">
-                        <p class="text-zinc-400 italic">Carregando serviços...</p>
+            <div id="booking-form" class="hidden space-y-4">
+                <h4 class="font-bold text-zinc-700 border-b pb-2">Horários para dia <span id="selected-date-display">--</span></h4>
+                <div id="time-slots" class="grid grid-cols-3 gap-2">
                     </div>
+
+                <div class="pt-4 space-y-3">
+                    <input id="nome" type="text" placeholder="Seu Nome" class="w-full p-3 border rounded-xl outline-none focus:border-gold">
+                    <input id="whatsapp" type="tel" placeholder="Seu WhatsApp" class="w-full p-3 border rounded-xl outline-none focus:border-gold">
                     
-                    <div class="bg-zinc-50 p-4 rounded-xl border border-zinc-100 flex justify-between items-center">
-                        <span class="text-zinc-500 font-medium">Total Estimado:</span>
-                        <span id="totalDisplay" class="text-2xl font-bold text-gold">R$ 0,00</span>
+                    <div class="bg-zinc-50 p-3 rounded-xl border">
+                        <p class="text-xs text-zinc-500 uppercase">Serviços Selecionados:</p>
+                        <p id="totalDisplay" class="font-bold text-gold text-[#D4AF37]">R$ 0,00</p>
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 mb-2">Data e Hora</label>
-                    <input id="data" type="datetime-local" class="form-input w-full p-4 rounded-xl text-lg cursor-pointer">
+                    <button onclick="finalizarAgendamento()" class="w-full bg-[#D4AF37] text-white font-bold py-4 rounded-xl shadow-lg hover:brightness-110 transition">
+                        RESERVAR AGORA ✨
+                    </button>
                 </div>
-
-                <button id="btnAgendar" onclick="agendar()" class="w-full gold-gradient-bg font-bold py-5 rounded-xl text-lg uppercase tracking-widest hover:brightness-110 transition duration-300 transform hover:scale-[1.01] active:scale-[0.99] shadow-md shadow-gold/20">
-                    CONFIRMAR AGENDAMENTO ✨
-                </button>
             </div>
         </div>
     </main>
 
-    <footer class="w-full max-w-7xl mt-20 pt-8 border-t border-zinc-200 text-center text-zinc-500 text-sm">
-        <p>&copy; 2026 Rivi Silva Esmalteria. Todos os direitos reservados.</p>
-    </footer>
-
     <script>
         const supabaseUrl = 'https://rahubkowehwtvditbhlx.supabase.co';
         const supabaseKey = 'sb_publishable_wKbs4gYVURdIR6Cafm8qFA_tUZZTIKo'; 
-        
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let servicosSelecionados = [];
+        let dataSelecionada = null;
+        let horaSelecionada = null;
+        const horariosPadrao = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
 
-        // Bloqueia datas passadas
-        const agora = new Date();
-        agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
-        document.getElementById('data').min = agora.toISOString().slice(0, 16);
+        async function renderizarCalendario() {
+            const container = document.getElementById('calendarDays');
+            const dataAtual = new Date();
+            const ano = dataAtual.getFullYear();
+            const mes = dataAtual.getMonth();
 
-        async function carregarServicos() {
-            const container = document.getElementById('listaServicos');
-            try {
-                const { data, error } = await _supabase.from('servicos').select('*').order('nome');
-                if (error) throw error;
+            // Pega dias bloqueados do banco
+            const { data: bloqueios } = await _supabase.from('agenda_bloqueada').select('data_interditada');
+            const diasBloqueados = bloqueios?.map(b => b.data_interditada) || [];
+
+            const primeiroDiaMes = new Date(ano, mes, 1).getDay();
+            const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
+
+            container.innerHTML = '';
+
+            // Espaços vazios
+            for (let i = 0; i < primeiroDiaMes; i++) {
+                container.innerHTML += '<div></div>';
+            }
+
+            // Dias do mês
+            for (let dia = 1; dia <= totalDiasMes; dia++) {
+                const dataString = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                const isBloqueado = diasBloqueados.includes(dataString);
+                const isPassado = new Date(dataString) < new Date().setHours(0,0,0,0);
                 
-                if (data) {
-                    container.innerHTML = '';
-                    data.forEach(s => {
-                        container.innerHTML += `
-                            <div class="service-item flex items-center p-3 rounded-lg cursor-pointer">
-                                <input type="checkbox" id="ser_${s.id}" value="${s.id}" data-preco="${s.preco}" 
-                                    onchange="atualizarTotal()" class="w-5 h-5 accent-gold cursor-pointer">
-                                <label for="ser_${s.id}" class="ml-3 flex-1 cursor-pointer text-zinc-800 flex justify-between">
-                                    <span>${s.nome}</span>
-                                    <span class="text-zinc-500">R$ ${s.preco}</span>
-                                </label>
-                            </div>
-                        `;
-                    });
+                const classeCor = (isBloqueado || isPassado) ? 'day-busy' : 'day-free';
+                
+                const diaElement = document.createElement('div');
+                diaElement.className = `day-box ${classeCor}`;
+                diaElement.innerText = dia;
+                if (!isBloqueado && !isPassado) {
+                    diaElement.onclick = () => selecionarDia(diaElement, dataString);
                 }
-            } catch (err) {
-                container.innerHTML = '<p class="text-red-500">Erro ao conectar serviços.</p>';
+                container.appendChild(diaElement);
             }
         }
 
-        function atualizarTotal() {
-            const checkboxes = document.querySelectorAll('#listaServicos input[type="checkbox"]:checked');
-            let total = 0;
-            servicosSelecionados = [];
+        async function selecionarDia(elemento, dataStr) {
+            document.querySelectorAll('.day-box').forEach(d => d.classList.remove('day-selected'));
+            elemento.classList.add('day-selected');
             
-            checkboxes.forEach(cb => {
-                total += parseFloat(cb.getAttribute('data-preco'));
-                servicosSelecionados.push(cb.value);
-            });
+            dataSelecionada = dataStr;
+            document.getElementById('selected-date-display').innerText = dataStr.split('-').reverse().join('/');
+            document.getElementById('step-info').classList.add('hidden');
+            document.getElementById('booking-form').classList.remove('hidden');
 
-            document.getElementById('totalDisplay').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            // Busca horários já ocupados no banco para esse dia
+            const { data: ocupados } = await _supabase.from('agendamentos').select('horario_agendado').eq('data_agendada', dataStr);
+            const listaOcupados = ocupados?.map(o => o.horario_agendado.substring(0, 5)) || [];
+
+            const timeContainer = document.getElementById('time-slots');
+            timeContainer.innerHTML = '';
+
+            horariosPadrao.forEach(hora => {
+                const isOcupado = listaOcupados.includes(hora);
+                const slot = document.createElement('div');
+                slot.className = `time-slot ${isOcupado ? 'bg-zinc-100 text-zinc-300 cursor-not-allowed opacity-50' : ''}`;
+                slot.innerText = hora;
+                if (!isOcupado) {
+                    slot.onclick = () => {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('time-selected'));
+                        slot.classList.add('time-selected');
+                        horaSelecionada = hora;
+                    };
+                }
+                timeContainer.appendChild(slot);
+            });
         }
 
-        async function agendar() {
+        async function finalizarAgendamento() {
             const nome = document.getElementById('nome').value;
             const whatsapp = document.getElementById('whatsapp').value;
-            const dataHora = document.getElementById('data').value;
-            const btn = document.getElementById('btnAgendar');
 
-            if(!nome || !whatsapp || servicosSelecionados.length === 0 || !dataHora) {
-                return alert("Falta preencher alguns campos gata! 💅💖");
+            if (!nome || !whatsapp || !horaSelecionada) {
+                return alert("Preencha seu nome, zap e escolha o horário! 💅");
             }
 
-            const [dataAgendada, horarioAgendado] = dataHora.split('T');
-            const mesAno = dataAgendada.substring(0, 7); 
+            const { error } = await _supabase.from('agendamentos').insert([{
+                cliente_nome: nome,
+                cliente_whatsapp: whatsapp,
+                data_agendada: dataSelecionada,
+                horario_agendado: horaSelecionada,
+                servico_id: '8665f826-6d65-4f6c-8e6d-616c61636163' // Exemplo: ID fixo ou pegue do select anterior
+            }]);
 
-            btn.innerHTML = "VERIFICANDO... ⏳";
-            btn.disabled = true;
+            if (error) return alert("Erro ao agendar: " + error.message);
 
-            try {
-                const { data: mesData } = await _supabase.from('meses_liberados').select('liberado').eq('mes_ano', mesAno).maybeSingle();
-                if (!mesData || !mesData.liberado) throw new Error("Agenda deste mês ainda não foi liberada! 🔒");
-
-                const { data: diaData } = await _supabase.from('agenda_bloqueada').select('*').eq('data_interditada', dataAgendada).maybeSingle();
-                if (diaData) throw new Error("A Rivi não atenderá nesta data escolhida! 🌸");
-
-                // Registra o primeiro serviço selecionado (ou o conjunto se o seu banco aceitar array)
-                const { error: insertError } = await _supabase.from('agendamentos').insert([{ 
-                    cliente_nome: nome, 
-                    cliente_whatsapp: whatsapp, 
-                    servico_id: servicosSelecionados[0], 
-                    data_agendada: dataAgendada,
-                    horario_agendado: horarioAgendado 
-                }]);
-
-                if (insertError) throw insertError;
-
-                alert('Agendamento feito com sucesso! ✨💖💅');
-                location.reload();
-
-            } catch (error) {
-                alert(error.message);
-                btn.innerHTML = "CONFIRMAR AGENDAMENTO ✨";
-                btn.disabled = false;
-            }
+            alert("Agendado com sucesso! Te esperamos. ✨");
+            location.reload();
         }
 
-        carregarServicos();
+        renderizarCalendario();
     </script>
 </body>
 </html>
