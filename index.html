@@ -141,7 +141,7 @@
             document.getElementById('section-horarios').classList.remove('hidden');
             document.getElementById('display-date').innerText = data.split('-').reverse().join('/');
 
-            // Buscando pela coluna correta do sistema administrativo: 'horario' e 'data_atendimento'
+            // Buscando horários ocupados usando as colunas do seu sistema administrativo
             const { data: ocupados } = await _supabase.from('agendamentos')
                 .select('horario')
                 .eq('data_atendimento', data);
@@ -194,7 +194,7 @@
             const nome = document.getElementById('nome').value;
             const zap = document.getElementById('whatsapp').value;
             const svs = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
-            const total = document.getElementById('totalDisplay').innerText.replace('R$ ', '').replace(',', '.');
+            const totalTexto = document.getElementById('totalDisplay').innerText.replace('R$ ', '').replace(',', '.');
             const btn = document.getElementById('btnAgendar');
 
             if(!nome || !zap || !dataSelecionada || !horaSelecionada || svs.length === 0) {
@@ -204,21 +204,21 @@
             btn.innerText = "RESERVANDO... ✨";
             btn.disabled = true;
 
-            // Payload 100% compatível com as colunas do seu sistema administrativo
+            // Criando o objeto com as colunas EXATAS da sua tabela agendamentos
             const payload = {
                 cliente_nome: nome.toUpperCase(),
                 telefone: zap,
                 data_atendimento: dataSelecionada,
                 horario: horaSelecionada,
-                servico: svs.join(", "),
-                valor: parseFloat(total),
+                servico: svs.join(", "), // Concatena os nomes dos serviços selecionados
+                valor: parseFloat(totalTexto),
                 status: "Aguardando"
             };
 
             const { error } = await _supabase.from('agendamentos').insert([payload]);
 
             if(error) {
-                alert("Erro ao agendar: " + error.message);
+                alert("Erro ao salvar agendamento: " + error.message);
                 btn.innerText = "CONFIRMAR AGENDAMENTO ✨";
                 btn.disabled = false;
             } else {
