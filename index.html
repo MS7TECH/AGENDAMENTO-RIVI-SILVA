@@ -22,17 +22,26 @@
         .time-slot { padding: 10px; border: 1px solid #eee; border-radius: 10px; text-align: center; cursor: pointer; font-size: 0.85rem; background: white; transition: 0.2s; }
         .time-selected { background: #D4AF37; color: white; border-color: #D4AF37; }
         .occupied { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; text-decoration: line-through; border: 1px dashed #d1d5db; }
-        .insta-icon { color: #D4AF37; transition: transform 0.3s ease; }
-        .insta-icon:hover { transform: scale(1.1); }
+        .contact-icon { color: #D4AF37; transition: transform 0.3s ease; }
+        .contact-icon:hover { transform: scale(1.1); color: #B8860B; }
     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
 
     <div class="mb-8 flex flex-col items-center gap-4">
         <img src="logo.png" alt="Rivi Silva Esmalteria" class="h-24 md:h-32 object-contain">
-        <a href="https://www.instagram.com/esmalteria_rivi?igsh=MWx2dzNxenRmYzF0bQ==" target="_blank" class="insta-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-        </a>
+        
+        <div class="flex gap-6 items-center">
+            <a href="https://www.instagram.com/esmalteria_rivi?igsh=MWx2dzNxenRmYzF0bQ==" target="_blank" class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+            <a href="https://wa.me/5571992447638" target="_blank" class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a href="https://maps.app.goo.gl/vBK9K2Mo8VGcDKR38" target="_blank" class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </a>
+        </div>
     </div>
 
     <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -48,14 +57,14 @@
 
             <div class="space-y-4">
                 <input id="nome" type="text" placeholder="Seu Nome Completo" class="form-input w-full p-4 rounded-xl uppercase">
-                <input id="whatsapp" type="tel" placeholder="WhatsApp" class="form-input w-full p-4 rounded-xl">
+                <input id="whatsapp" type="tel" placeholder="Seu WhatsApp" class="form-input w-full p-4 rounded-xl">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-zinc-400 uppercase mb-2">Serviços</label>
                 <div id="listaServicos" class="grid grid-cols-1 gap-1 max-h-40 overflow-y-auto border rounded-xl p-2 bg-white"></div>
                 <div class="mt-3 p-4 bg-zinc-900 rounded-xl flex justify-between items-center text-white">
-                    <span class="text-zinc-400">Total Estimado:</span>
+                    <span class="text-zinc-400">Total Previsto:</span>
                     <span id="totalDisplay" class="text-2xl font-bold gold-text">R$ 0,00</span>
                 </div>
             </div>
@@ -69,29 +78,32 @@
                 <label class="block text-xs font-bold text-zinc-400 uppercase text-center">Horários para <span id="display-date" class="gold-text">--/--</span></label>
                 <div id="time-slots" class="grid grid-cols-3 gap-2 pb-4"></div>
                 
-                <div class="p-5 bg-zinc-50 rounded-2xl border border-dashed border-gold/40 space-y-4">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-[10px] text-zinc-400 font-bold uppercase">Sinal Obrigatório (Reserva)</p>
-                            <p id="sinalDisplay" class="text-lg font-black gold-text">R$ 50,00</p>
+                <div class="p-5 bg-zinc-50 rounded-2xl border border-dashed border-gold/40 space-y-4 text-center">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="text-left">
+                            <p class="text-[10px] text-zinc-400 font-bold uppercase">Sinal de Reserva (Fixo)</p>
+                            <p class="text-lg font-black gold-text">R$ 50,00</p>
                         </div>
                         <img src="logo_pix.png" alt="PIX" class="h-4 opacity-50">
                     </div>
 
                     <div class="bg-white p-3 rounded-lg border border-gray-100">
-                        <p class="text-[9px] text-zinc-400 font-bold uppercase mb-1">Chave TELEFONE • Mercado Pago</p>
+                        <p class="text-[9px] text-zinc-400 font-bold uppercase mb-1">Chave CPF • Mercado Pago</p>
                         <p class="text-sm font-bold text-zinc-800 tracking-tight">71 99244-7638</p>
-                        <p class="text-[9px] text-zinc-500 font-medium text-[8px]">Favorecido: Rivelino Araújo</p>
+                        <p class="text-[9px] text-zinc-500 font-medium">Favorecido: Rivelino Araújo</p>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Anexar Comprovante do Sinal</label>
-                        <input type="file" id="comprovante" class="text-[10px] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-gold/10 file:text-gold hover:file:bg-gold/20 w-full">
+                    <div class="py-2">
+                        <p class="text-[10px] text-zinc-600 font-bold uppercase leading-tight italic">
+                            Agendamento concluído assim que enviar o comprovante no WhatsApp! ✨
+                        </p>
+                        <p class="text-[9px] text-zinc-400 mt-1">Você receberá uma mensagem de confirmação em seguida.</p>
                     </div>
                 </div>
                 
-                <button id="btnAgendar" onclick="finalizarAgendamento()" class="w-full gold-bg text-white font-bold py-5 rounded-xl shadow-lg uppercase tracking-widest mt-4 hover:scale-[1.02] transition-transform">
-                    CONFIRMAR AGENDAMENTO 💅
+                <button id="btnAgendar" onclick="finalizarAgendamento()" class="w-full gold-bg text-white font-bold py-5 rounded-xl shadow-lg uppercase tracking-widest mt-4 hover:scale-[1.02] transition-transform flex items-center justify-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-whatsapp"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    CONFIRMAR E ENVIAR COMPROVANTE 💅
                 </button>
             </div>
         </div>
@@ -153,21 +165,34 @@
             document.getElementById('section-horarios').classList.remove('hidden');
             document.getElementById('display-date').innerText = data.split('-').reverse().join('/');
 
-            const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data_atendimento', data);
+            const { data: ocupados } = await _supabase.from('agendamentos')
+                .select('horario')
+                .eq('data_atendimento', data)
+                .not('status', 'eq', 'Cancelado');
+
             const listaOcupados = ocupados?.map(o => o.horario.substring(0, 5)) || [];
             const slots = gerarSlots(configAgenda.inicio, configAgenda.fim, configAgenda.intervalo);
 
             const slotsDiv = document.getElementById('time-slots');
-            slotsDiv.innerHTML = '';
+            slotsDiv.innerHTML = ''; 
+            
+            const agora = new Date();
+            const hojeFormatado = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
+            const horaAtualStr = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}`;
+
             slots.forEach(h => {
+                const isOcupado = listaOcupados.includes(h);
+                const jaPassou = (data === hojeFormatado && h <= horaAtualStr);
                 const btn = document.createElement('div');
-                btn.className = `time-slot ${listaOcupados.includes(h) ? 'occupied' : 'hover:border-gold'}`;
+                btn.className = `time-slot ${ (isOcupado || jaPassou) ? 'occupied' : 'hover:border-gold'}`;
                 btn.innerText = h;
-                if(!listaOcupados.includes(h)) btn.onclick = () => {
-                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('time-selected'));
-                    btn.classList.add('time-selected');
-                    horaSelecionada = h;
-                };
+                if(!isOcupado && !jaPassou) {
+                    btn.onclick = () => {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('time-selected'));
+                        btn.classList.add('time-selected');
+                        horaSelecionada = h;
+                    };
+                }
                 slotsDiv.appendChild(btn);
             });
         }
@@ -199,13 +224,13 @@
             const n = document.getElementById('nome').value;
             const z = document.getElementById('whatsapp').value;
             const svs = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
-            const comp = document.getElementById('comprovante').files[0];
 
-            if(!n || !z || !dataSelecionada || !horaSelecionada || svs.length === 0 || !comp) {
-                return alert("Gata, preencha tudo e anexe o comprovante de R$ 50,00! 💅");
+            if(!n || !z || !dataSelecionada || !horaSelecionada || svs.length === 0) {
+                return alert("Preencha todos os campos e escolha seu horário, gata! 💅");
             }
 
-            document.getElementById('btnAgendar').innerText = "RESERVANDO... ✨";
+            document.getElementById('btnAgendar').innerText = "CONFIRMANDO... ✨";
+            document.getElementById('btnAgendar').disabled = true;
 
             const { error } = await _supabase.from('agendamentos').insert([{
                 cliente_nome: n.toUpperCase(), telefone: z, data_atendimento: dataSelecionada,
@@ -215,11 +240,12 @@
 
             if(error) { 
                 alert("Erro ao salvar: " + error.message); 
-                document.getElementById('btnAgendar').innerText = "CONFIRMAR AGENDAMENTO 💅";
+                document.getElementById('btnAgendar').innerText = "CONFIRMAR E ENVIAR COMPROVANTE 💅";
+                document.getElementById('btnAgendar').disabled = false;
             } 
             else {
-                const msg = `Oi Rivi! Sou a ${n.toUpperCase()}. Agendei ${svs.join(", ")} para o dia ${dataSelecionada.split('-').reverse().join('/')} às ${horaSelecionada}. O comprovante do sinal de R$ 50,00 está em anexo. 💖💅`;
-                alert("RESERVADO! Agora envie o comprovante no WhatsApp.");
+                const msg = `Oi Rivi! Sou a ${n.toUpperCase()}. Agendei ${svs.join(", ")} para o dia ${dataSelecionada.split('-').reverse().join('/')} às ${horaSelecionada}. O comprovante de R$ 50,00 está pronto! 💖💅`;
+                alert("Horário reservado! Envie o comprovante no WhatsApp agora para confirmar.");
                 window.open(`https://wa.me/5571992447638?text=${encodeURIComponent(msg)}`, '_blank');
                 location.reload();
             }
