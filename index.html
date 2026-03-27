@@ -79,6 +79,7 @@
         let dataSelecionada = null;
         let horaSelecionada = null;
         let configAgenda = { inicio: '09:00', fim: '18:00', intervalo: 40 };
+        let excecoesHorarios = {}; // Armazena as exceções carregadas
 
         async function init() {
             const container = document.getElementById('calendarDays');
@@ -86,10 +87,11 @@
             const hojeDataApenas = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
             const mesAnoKey = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
 
-            const [resConfig, resMeses, resBloqueios] = await Promise.all([
+            const [resConfig, resMeses, resBloqueios, resExcecoes] = await Promise.all([
                 _supabase.from('agenda_config').select('*').eq('id', 1).single(),
                 _supabase.from('meses_liberados').select('liberado').eq('mes_ano', mesAnoKey).single(),
-                _supabase.from('agenda_bloqueada').select('data_interditada')
+                _supabase.from('agenda_bloqueada').select('data_interditada'),
+                _supabase.from('agenda_excecoes').select('*') // ✅ BUSCA AS EXCEÇÕES
             ]);
 
             if (resConfig.data) {
@@ -98,6 +100,13 @@
                     fim: resConfig.data.hora_fim,
                     intervalo: resConfig.data.intervalo_minutos
                 };
+            }
+
+            // Mapeia exceções para acesso rápido
+            if (resExcecoes.data) {
+                resExcecoes.data.forEach(ex => {
+                    excecoesHorarios[ex.data] = { inicio: ex.hora_inicio, fim: ex.hora_fim };
+                });
             }
 
             if (!resMeses.data || !resMeses.data.liberado) {
@@ -116,7 +125,6 @@
                 const dataComparacao = new Date(hoje.getFullYear(), hoje.getMonth(), d);
                 const dataStr = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 
-                // Permitir hoje (dataComparacao >= hojeDataApenas)
                 const isPast = dataComparacao < hojeDataApenas;
                 const isBlocked = listaBloqueados.includes(dataStr);
                 
@@ -154,7 +162,10 @@
                 .eq('data_atendimento', data);
             
             const listaOcupados = ocupados?.map(o => o.horario.substring(0, 5)) || [];
-            const horariosParaExibir = gerarHorariosSlots(configAgenda.inicio, configAgenda.fim, configAgenda.intervalo);
+
+            // ✅ VERIFICA SE HÁ EXCEÇÃO PARA O DIA SELECIONADO
+            const horarioDoDia = excecoesHorarios[data] || { inicio: configAgenda.inicio, fim: configAgenda.fim };
+            const horariosParaExibir = gerarHorariosSlots(horarioDoDia.inicio, horarioDoDia.fim, configAgenda.intervalo);
 
             const slotsDiv = document.getElementById('time-slots');
             slotsDiv.innerHTML = '';
@@ -165,7 +176,6 @@
 
             horariosParaExibir.forEach(h => {
                 const isOcupado = listaOcupados.includes(h);
-                // Se for hoje, verifica se a hora já passou
                 const jaPassou = (data === hojeFormatado && h <= horaAtualStr);
                 
                 const btn = document.createElement('div');
