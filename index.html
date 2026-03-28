@@ -8,11 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background-color: #FFFFFF; 
-            font-family: 'Montserrat', sans-serif; 
-            background-image: radial-gradient(at 10% 10%, rgba(212, 175, 55, 0.05) 0px, transparent 50%); 
-        }
+        body { background-color: #FFFFFF; font-family: 'Montserrat', sans-serif; background-image: radial-gradient(at 10% 10%, rgba(212, 175, 55, 0.05) 0px, transparent 50%); }
         .gold-text { color: #D4AF37; }
         .gold-bg { background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 100%); }
         .clean-card { background-color: #FDFDFD; border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05); }
@@ -28,25 +24,6 @@
         .occupied { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; text-decoration: line-through; }
         .contact-icon { color: #D4AF37; transition: transform 0.3s ease; }
         .contact-icon:hover { transform: scale(1.1); color: #B8860B; }
-        
-        /* Ajuste da imagem lateral com degradê */
-        .perfil-img {
-            mask-image: linear-gradient(to right, black 60%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
-            object-fit: cover;
-            object-position: top;
-            width: 100%;
-            height: 100%;
-            border-radius: 24px;
-        }
-        @media (max-width: 1024px) {
-            .perfil-img {
-                mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-                -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-                height: 300px;
-                border-radius: 24px 24px 0 0;
-            }
-        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
@@ -61,24 +38,18 @@
             <a href="https://wa.me/5571992447638" target="_blank" class="contact-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             </a>
-            <a href="https://www.google.com/maps/search/?api=1&query=R.+José+Tibério,+1127+-+São+Caetano" target="_blank" class="contact-icon">
+            <a href="https://maps.app.goo.gl/vBK9K2Mo8VGcDKR38" target="_blank" class="contact-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
             </a>
         </div>
     </div>
 
-    <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        
-        <div class="flex flex-col gap-8">
-            <div class="relative w-full h-[400px] lg:h-[500px] overflow-hidden">
-                <img src="foto_perfil.jpg" alt="Rivi Silva" class="perfil-img">
-            </div>
-            <div class="flex flex-col gap-6 lg:pr-10">
-                <h2 class="text-4xl md:text-5xl font-light text-zinc-900 leading-tight">
-                    Seu momento de brilhar começa aqui, <span class="font-semibold gold-text">gata. 💅</span>
-                </h2>
-                <p class="text-zinc-600 text-lg italic border-l-2 border-gold pl-4">"Unhas feitas, auto-estima renovada."</p>
-            </div>
+    <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="flex flex-col gap-6 lg:pr-10">
+            <h2 class="text-4xl md:text-5xl font-light text-zinc-900 leading-tight">
+                Seu momento de brilhar começa aqui, <span class="font-semibold gold-text">gata. 💅</span>
+            </h2>
+            <p class="text-zinc-600 text-lg italic border-l-2 border-gold pl-4">"Unhas feitas, auto-estima renovada."</p>
         </div>
 
         <div class="w-full clean-card p-6 md:p-10 rounded-3xl space-y-6">
@@ -136,6 +107,7 @@
         async function init() {
             const container = document.getElementById('calendarDays');
             const hoje = new Date();
+            const diaHoje = hoje.getDate();
             const mesHoje = hoje.getMonth();
             const anoHoje = hoje.getFullYear();
             const mesAnoKey = `${anoHoje}-${String(mesHoje + 1).padStart(2, '0')}`;
@@ -150,6 +122,7 @@
             if (resConfig.data) configPadrao = { inicio: resConfig.data.hora_inicio, fim: resConfig.data.hora_fim, intervalo: resConfig.data.intervalo_minutos };
             if (resBloqueios.data) bloqueios = resBloqueios.data.map(b => b.data_interditada);
             
+            // ✅ CARREGA A TABELA CORRETA DO SEU PAINEL
             if (resExcecoes.data) {
                 resExcecoes.data.forEach(ex => {
                     excecoes[ex.data] = { inicio: ex.hora_inicio, fim: ex.hora_fim };
@@ -179,6 +152,7 @@
                 const isPassado = d < diaAtual;
 
                 const box = document.createElement('div');
+                // Visual padrão (Verde livre, Vermelho bloqueado)
                 box.className = `day-box ${isPassado || isBlocked ? 'day-busy' : 'day-free'}`;
                 box.innerText = d;
                 
@@ -201,6 +175,7 @@
             const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data_atendimento', data).not('status', 'eq', 'Cancelado');
             const ocupadosList = ocupados?.map(o => o.horario.substring(0, 5)) || [];
             
+            // ✅ USA HORÁRIO ESPECIAL DO PAINEL SE EXISTIR
             const hI = excecoes[data] ? excecoes[data].inicio : configPadrao.inicio;
             const hF = excecoes[data] ? excecoes[data].fim : configPadrao.fim;
 
@@ -270,7 +245,9 @@
             }]);
 
             if(!error) {
+                // ✅ MENSAGEM DO WHATSAPP ATUALIZADA COM A COBRANÇA DO SINAL
                 const msg = `Agendamento Rivi Silva 💅\n\nNome: ${n.toUpperCase()}\nData: ${dataSelecionada.split('-').reverse().join('/')}\nHora: ${horaSelecionada}\nServiços: ${svs.join(", ")}\n\nsegue o meu comprovante com o sinal para garantir o meu agendamento!`;
+                
                 window.open(`https://wa.me/5571992447638?text=${encodeURIComponent(msg)}`, '_blank');
                 location.reload();
             }
