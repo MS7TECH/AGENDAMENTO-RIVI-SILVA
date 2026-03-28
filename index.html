@@ -8,55 +8,104 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #FFFFFF; font-family: 'Montserrat', sans-serif; }
+        body { background-color: #FFFFFF; font-family: 'Montserrat', sans-serif; background-image: radial-gradient(at 10% 10%, rgba(212, 175, 55, 0.05) 0px, transparent 50%); }
         .gold-text { color: #D4AF37; }
         .gold-bg { background: linear-gradient(135deg, #D4AF37 0%, #F5E6A3 100%); }
         .clean-card { background-color: #FDFDFD; border: 1px solid rgba(212, 175, 55, 0.15); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05); }
-        .form-input { border: 1px solid rgba(212, 175, 55, 0.2) !important; outline: none; }
+        .form-input { border: 1px solid rgba(212, 175, 55, 0.2) !important; transition: 0.3s; }
+        .form-input:focus { border-color: #D4AF37 !important; box-shadow: 0 0 0 1px #D4AF37 !important; outline: none; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .day-box { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; border: 1px solid #eee; font-size: 0.85rem; font-weight: 600; }
+        .day-box { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 1px solid #eee; font-size: 0.85rem; font-weight: 600; }
         .day-free { background: #f0fdf4; color: #166534; border-color: #bbf7d0; } 
         .day-busy { background: #fef2f2; color: #991b1b; border-color: #fecaca; cursor: not-allowed; opacity: 0.5; }
         .day-selected { background: #D4AF37 !important; color: white !important; border-color: #D4AF37 !important; }
-        .time-slot { padding: 10px; border: 1px solid #eee; border-radius: 10px; text-align: center; cursor: pointer; background: white; font-size: 0.85rem; }
-        .time-selected { background: #D4AF37; color: white; }
+        .time-slot { padding: 10px; border: 1px solid #eee; border-radius: 10px; text-align: center; cursor: pointer; font-size: 0.85rem; background: white; transition: 0.2s; }
+        .time-selected { background: #D4AF37; color: white; border-color: #D4AF37; }
         .occupied { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; text-decoration: line-through; }
+        
+        .perfil-img {
+            mask-image: linear-gradient(to right, black 70%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black 70%, transparent 100%);
+            object-fit: cover;
+            object-position: top;
+        }
+        @media (max-width: 1024px) {
+            .perfil-img {
+                mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+                height: 350px;
+                width: 100%;
+            }
+        }
     </style>
 </head>
-<body class="p-4 flex flex-col items-center min-h-screen">
+<body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
 
-    <div class="w-full max-w-md clean-card p-6 rounded-3xl space-y-6">
-        <div class="text-center">
-            <h2 class="text-2xl font-bold gold-text uppercase">Rivi Silva</h2>
-            <p class="text-zinc-500 text-[10px] tracking-widest uppercase">Esmalteria & Estética</p>
-        </div>
-
-        <div class="space-y-3">
-            <input id="nome" type="text" placeholder="SEU NOME COMPLETO" class="form-input w-full p-4 rounded-xl uppercase text-sm font-bold">
-            <input id="whatsapp_input" type="tel" maxlength="15" oninput="this.value = phoneMask(this.value)" placeholder="(71) 00000-0000" class="form-input w-full p-4 rounded-xl text-sm font-bold">
-        </div>
-
-        <div id="listaServicos" class="max-h-40 overflow-y-auto border rounded-xl p-2 bg-white text-[10px]"></div>
-        
-        <div class="p-4 bg-zinc-900 rounded-xl flex justify-between items-center text-white">
-            <span class="text-zinc-400 font-bold text-xs uppercase">Total:</span>
-            <span id="totalDisplay" class="text-xl font-bold gold-text">R$ 0,00</span>
-        </div>
-
-        <div>
-            <p class="text-[10px] font-black text-zinc-400 uppercase mb-3 text-center tracking-widest">Escolha a Data</p>
-            <div id="calendarDays" class="calendar-grid"></div>
-        </div>
-
-        <div id="section-horarios" class="hidden space-y-4 pt-4 border-t">
-            <p class="text-[10px] font-black text-zinc-400 uppercase text-center tracking-widest">Horários para <span id="display-date" class="gold-text">--/--</span></p>
-            <div id="time-slots" class="grid grid-cols-3 gap-2"></div>
-            
-            <button id="btnAgendar" onclick="finalizarAgendamento()" class="w-full gold-bg text-zinc-900 font-black py-5 rounded-2xl shadow-lg uppercase text-xs tracking-widest">
-                Confirmar Agendamento 💅
-            </button>
-        </div>
+    <div class="mb-8 flex flex-col items-center gap-4 text-center">
+        <img src="logo.png" alt="Rivi Silva Esmalteria" class="h-24 md:h-32 object-contain">
+        <p class="text-[10px] gold-text font-bold uppercase tracking-[0.4em]">Design de Luxo</p>
     </div>
+
+    <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        
+        <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start lg:pr-10">
+            <img src="foto_perfil.jpg" alt="Rivi Silva" class="perfil-img w-full lg:w-1/2 rounded-3xl lg:rounded-none">
+            <div class="flex flex-col gap-6 mt-4 lg:mt-20">
+                <h2 class="text-4xl md:text-5xl font-light text-zinc-900 leading-tight">
+                    Seu momento de brilhar começa aqui, <span class="font-semibold gold-text">gata. 💅</span>
+                </h2>
+                <p class="text-zinc-600 text-lg italic border-l-2 border-[#D4AF37] pl-4">"Unhas feitas, auto-estima renovada."</p>
+            </div>
+        </div>
+
+        <div class="w-full clean-card p-6 md:p-10 rounded-3xl space-y-6">
+            <h3 class="text-xl font-semibold gold-text text-center uppercase tracking-widest mb-6">Solicitar Agendamento</h3>
+
+            <div class="space-y-4">
+                <input id="nome" type="text" placeholder="Seu Nome Completo" class="form-input w-full p-4 rounded-xl uppercase text-xs font-bold bg-zinc-50">
+                <input id="whatsapp_input" type="tel" maxlength="15" oninput="this.value = phoneMask(this.value)" placeholder="(71) 00000-0000" class="form-input w-full p-4 rounded-xl text-xs font-bold bg-zinc-50">
+            </div>
+
+            <div class="mt-6">
+                <label class="block text-xs font-bold text-zinc-400 uppercase mb-2">Serviços</label>
+                <div id="listaServicos" class="grid grid-cols-1 gap-1 max-h-40 overflow-y-auto border border-zinc-100 rounded-xl p-2 bg-white text-[10px]"></div>
+                
+                <div class="mt-4">
+                    <div class="p-4 bg-zinc-900 rounded-xl flex justify-between items-center text-white shadow-xl">
+                        <span class="text-zinc-400 font-bold text-xs uppercase">Total:</span>
+                        <span id="totalDisplay" class="text-2xl font-bold gold-text">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t">
+                <label class="block text-xs font-bold text-zinc-400 uppercase mb-3 text-center tracking-widest">Escolha a Data</label>
+                <div id="calendarDays" class="calendar-grid"></div>
+            </div>
+
+            <div id="section-horarios" class="hidden space-y-4 pt-4 border-t border-zinc-100">
+                <label class="block text-xs font-bold text-zinc-400 uppercase text-center tracking-widest">Horários para <span id="display-date" class="gold-text">--/--</span></label>
+                <div id="time-slots" class="grid grid-cols-3 gap-2 pb-4"></div>
+                
+                <div class="p-5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col items-center gap-3">
+                    <p class="text-[11px] text-amber-800 font-bold uppercase text-center leading-relaxed">
+                        Para confirmar o agendamento envie um sinal de <span class="text-lg block font-black">R$ 50,00</span>
+                    </p>
+                    <div class="w-full space-y-1">
+                        <span class="text-[9px] text-amber-600 font-bold uppercase block text-center">Chave PIX (Telefone) Ryan Caique Santana Da Silva</span>
+                        <div class="flex items-center gap-2 bg-white p-3 rounded-xl border border-amber-200">
+                            <input id="pixKey" type="text" value="(71) 99244-7638" readonly class="bg-transparent text-center text-xs font-bold text-zinc-700 w-full outline-none">
+                            <button onclick="copyPix()" class="gold-bg text-zinc-900 text-[10px] font-bold px-4 py-2 rounded-lg active:scale-95 transition-all">COPIAR</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btnAgendar" onclick="finalizarAgendamento()" class="w-full bg-[#25D366] text-white font-black py-5 rounded-xl shadow-lg uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    Confirmar Agendamento e Enviar Comprovante 💅
+                </button>
+            </div>
+        </div>
+    </main>
 
     <script>
         const supabaseUrl = 'https://rahubkowehwtvditbhlx.supabase.co';
@@ -77,15 +126,23 @@
             return v;
         }
 
+        function copyPix() {
+            const pixVal = document.getElementById('pixKey').value;
+            navigator.clipboard.writeText(pixVal).then(() => {
+                alert("Chave PIX copiada! 💅");
+            });
+        }
+
         async function init() {
+            const container = document.getElementById('calendarDays');
             const hoje = new Date();
             const mesAnoKey = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
 
             const [resConfig, resBloqueios, resExcecoes, resMeses] = await Promise.all([
-                _supabase.from('agenda_config').select('*').eq('id', 1).single(),
+                _supabase.from('agenda_config').select('*').eq('id', 1).maybeSingle(),
                 _supabase.from('agenda_bloqueada').select('data_interditada'),
                 _supabase.from('agenda_excecoes').select('*'),
-                _supabase.from('meses_liberados').select('liberado').eq('mes_ano', mesAnoKey).single()
+                _supabase.from('meses_liberados').select('liberado').eq('mes_ano', mesAnoKey).maybeSingle()
             ]);
 
             if (resConfig.data) configPadrao = { inicio: resConfig.data.hora_inicio, fim: resConfig.data.hora_fim, intervalo: resConfig.data.intervalo_minutos };
@@ -93,7 +150,7 @@
             if (resExcecoes.data) resExcecoes.data.forEach(ex => excecoes[ex.data] = { inicio: ex.hora_inicio, fim: ex.hora_fim });
 
             if (!resMeses.data || !resMeses.data.liberado) {
-                document.getElementById('calendarDays').innerHTML = '<p class="col-span-7 text-center py-10 text-xs font-bold text-zinc-400">AGENDA FECHADA ESTE MÊS.</p>';
+                container.innerHTML = `<p class="col-span-7 text-center py-10 text-xs font-bold text-zinc-400 uppercase">Agenda fechada para este mês.</p>`;
             } else {
                 renderCalendar(hoje);
             }
@@ -137,7 +194,6 @@
             const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data_atendimento', data).not('status', 'eq', 'Cancelado');
             const ocupadosList = ocupados?.map(o => o.horario.substring(0, 5)) || [];
             
-            // Usa horário da exceção se existir, senão usa o padrão
             const hI = excecoes[data] ? excecoes[data].inicio : configPadrao.inicio;
             const hF = excecoes[data] ? excecoes[data].fim : configPadrao.fim;
 
@@ -156,10 +212,10 @@
             while (totalMin < totalFim) {
                 const hFormat = `${String(Math.floor(totalMin / 60)).padStart(2, '0')}:${String(totalMin % 60).padStart(2, '0')}`;
                 const isOcupado = ocupadosList.includes(hFormat);
-                const isPassado = (data === dataHojeStr && totalMin <= (agoraMin + 20));
+                const isPassado = (data === dataHojeStr && totalMin <= (agoraMin + 30));
 
                 const btn = document.createElement('div');
-                btn.className = `time-slot ${ (isOcupado || isPassado) ? 'occupied' : 'hover:border-gold'}`;
+                btn.className = `time-slot ${ (isOcupado || isPassado) ? 'occupied' : 'hover:gold-text hover:border-gold'}`;
                 btn.innerText = hFormat;
 
                 if (!isOcupado && !isPassado) {
@@ -177,12 +233,12 @@
         async function carregarServicos() {
             const { data } = await _supabase.from('servicos').select('*').order('nome');
             if(data) document.getElementById('listaServicos').innerHTML = data.map(s => `
-                <label class="flex justify-between items-center p-3 hover:bg-zinc-50 cursor-pointer border-b border-zinc-50">
+                <label class="flex justify-between items-center p-3 hover:bg-zinc-50 cursor-pointer border-b last:border-0 border-zinc-100">
                     <div class="flex items-center gap-3">
-                        <input type="checkbox" value="${s.nome}" data-price="${s.preco}" onchange="calcTotal()" class="accent-gold w-4 h-4">
-                        <span class="font-bold text-zinc-800 uppercase">${s.nome}</span>
+                        <input type="checkbox" value="${s.nome}" data-price="${s.preco}" onchange="calcTotal()" class="accent-[#D4AF37] w-4 h-4">
+                        <span class="font-bold text-zinc-800 uppercase tracking-tighter">${s.nome}</span>
                     </div>
-                    <span class="text-zinc-400 font-bold">R$ ${s.preco}</span>
+                    <span class="text-zinc-400 font-bold">R$ ${s.preco.toFixed(2).replace('.', ',')}</span>
                 </label>`).join('');
         }
 
@@ -192,24 +248,41 @@
         }
 
         async function finalizarAgendamento() {
-            const n = document.getElementById('nome').value;
+            const n = document.getElementById('nome').value.trim();
             const z = document.getElementById('whatsapp_input').value; 
-            const svs = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
+            const checkedSvs = document.querySelectorAll('input[type="checkbox"]:checked');
+            const svs = Array.from(checkedSvs).map(c => c.value);
 
             if(!n || z.length < 14 || !dataSelecionada || !horaSelecionada || svs.length === 0) {
-                return alert("Preencha tudo certinho! 💅");
+                return alert("Falta preencher algo, gata! 💅");
             }
 
+            const total = document.getElementById('totalDisplay').innerText;
+
             const { error } = await _supabase.from('agendamentos').insert([{
-                cliente_nome: n.toUpperCase(), telefone: z, data_atendimento: dataSelecionada,
-                horario: horaSelecionada, servico: svs.join(", "), status: "Aguardando",
-                valor: parseFloat(document.getElementById('totalDisplay').innerText.replace('R$ ', '').replace(',', '.'))
+                cliente_nome: n.toUpperCase(), 
+                telefone: z, 
+                data_atendimento: dataSelecionada,
+                horario: horaSelecionada, 
+                servico: svs.join(", "), 
+                status: "Aguardando",
+                valor: parseFloat(total.replace('R$ ', '').replace(',', '.'))
             }]);
 
             if(!error) {
-                const msg = `Agendamento Rivi Silva 💅\n\nNome: ${n.toUpperCase()}\nData: ${dataSelecionada.split('-').reverse().join('/')}\nHora: ${horaSelecionada}\nServiços: ${svs.join(", ")}`;
+                const msg = `Agendamento Rivi Silva 💅\n\n` +
+                            `Nome: ${n.toUpperCase()}\n` +
+                            `Data: ${dataSelecionada.split('-').reverse().join('/')}\n` +
+                            `Hora: ${horaSelecionada}\n` +
+                            `Serviços: ${svs.join(", ")}\n` +
+                            `Total: ${total}\n\n` +
+                            `Sinal: R$ 50,00 (Pago ✅)\n\n` +
+                            `segue o meu comprovante com o sinal para garantir o meu agendamento!`;
+                
                 window.open(`https://wa.me/5571992447638?text=${encodeURIComponent(msg)}`, '_blank');
-                location.reload();
+                setTimeout(() => { location.reload(); }, 1500);
+            } else {
+                alert("Erro ao salvar no sistema.");
             }
         }
         init();
