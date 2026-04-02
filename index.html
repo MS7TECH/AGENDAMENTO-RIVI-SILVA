@@ -45,10 +45,10 @@
             <a href="https://www.instagram.com/esmalteria_rivi?igsh=MWx2dzNxenRmYzF0bQ==" target="_blank" class="hover:scale-125 transition-transform duration-300">
                 <i data-lucide="instagram" class="text-[#D4AF37]"></i>
             </a>
-            <a href="https://api.whatsapp.com/send?phone=5571992447638" target="_blank" class="hover:scale-125 transition-transform duration-300">
+            <a href="https://api.whatsapp.com/send?phone=5571992447638" class="hover:scale-125 transition-transform duration-300">
                 <i data-lucide="smartphone" class="text-[#D4AF37]"></i>
             </a>
-            <a href="https://maps.app.goo.gl/vBK9K2Mo8VGcDKR38" target="_blank" class="hover:scale-125 transition-transform duration-300">
+            <a href="#" target="_blank" class="hover:scale-125 transition-transform duration-300">
                 <i data-lucide="map-pin" class="text-[#D4AF37]"></i>
             </a>
         </div>
@@ -125,7 +125,7 @@
                 </div>
 
                 <button id="btnAgendar" onclick="finalizarAgendamento()" class="w-full bg-[#25D366] text-white font-black py-5 rounded-xl shadow-lg uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all">
-                    <i data-lucide="check-circle" class="w-5 h-5"></i> Confirmar Agendamento 💅
+                    <i data-lucide="check-circle" class="w-5 h-5"></i> Envie o Comprovante Aqui 💅
                 </button>
             </div>
         </div>
@@ -256,16 +256,17 @@
             const svs = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
             if(!n || z.length < 14 || !dataSelecionada || !horaSelecionada || svs.length === 0) return alert("Preencha tudo! 💅");
             const totalStr = document.getElementById('totalDisplay').innerText;
+            
             const { error } = await _supabase.from('agendamentos').insert([{
                 cliente_nome: n.toUpperCase(), telefone: z, data_atendimento: dataSelecionada,
                 horario: horaSelecionada, servico: svs.join(", "), status: "Aguardando",
                 valor: parseFloat(totalStr.replace('R$ ', '').replace(',', '.'))
             }]);
+
             if(!error) {
                 const msg = `Agendamento Rivi Silva 💅\n\nNome: ${n.toUpperCase()}\nData: ${dataSelecionada.split('-').reverse().join('/')}\nHora: ${horaSelecionada}\nServiços: ${svs.join(", ")}\nTotal: ${totalStr}\n\nsegue o meu comprovante com o sinal para garantir o meu agendamento!`;
-                // Link universal para garantir redirecionamento em qualquer aparelho
-                window.open(`https://api.whatsapp.com/send?phone=5571992447638&text=${encodeURIComponent(msg)}`, '_blank');
-                location.reload();
+                // Usando location.href para forçar redirecionamento na mesma aba (mais eficaz em celulares)
+                window.location.href = `https://api.whatsapp.com/send?phone=5571992447638&text=${encodeURIComponent(msg)}`;
             } else { alert("Erro ao agendar."); }
         }
         init();
