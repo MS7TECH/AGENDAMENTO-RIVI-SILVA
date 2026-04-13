@@ -150,9 +150,6 @@
         let bloqueios = [], excecoes = {};
         let mesVisualizado = new Date();
 
-        // CACHE BUSTING: Garante que o script busque dados novos do Supabase ignorando o cache local
-        function getUniqueQuery() { return `?t=${new Date().getTime()}`; }
-
         function phoneMask(v) {
             v = v.replace(/\D/g, "");
             if (v.length > 11) v = v.substring(0, 11);
@@ -164,6 +161,25 @@
         function copyPix() {
             const pixVal = document.getElementById('pixKey').value;
             navigator.clipboard.writeText(pixVal).then(() => { alert("Chave PIX copiada! 💅"); });
+        }
+
+        // FUNÇÃO PARA CHECAR SE O HORÁRIO AINDA É VÁLIDO (TRAVA DE SEGURANÇA)
+        function validarHorarioNoMomento(dataS, horaS) {
+            const agora = new Date();
+            const hojeStr = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
+            
+            if (dataS === hojeStr) {
+                const [h, m] = horaS.split(':').map(Number);
+                const minutosSelecionado = (h * 60) + m;
+                const minutosAgora = (agora.getHours() * 60) + agora.getMinutes();
+                
+                if (minutosSelecionado <= minutosAgora) {
+                    alert("⚠️ Esse horário acabou de expirar! A página será atualizada para mostrar os horários disponíveis.");
+                    window.location.reload();
+                    return false;
+                }
+            }
+            return true;
         }
 
         async function init() {
@@ -187,7 +203,6 @@
             const mes = String(mesVisualizado.getMonth() + 1).padStart(2, '0');
             const mesAnoKey = `${ano}-${mes}`;
 
-            // Adicionado query randômica para forçar bypass de cache no fetch
             const [resConfig, resBloqueios, resExcecoes, resMeses] = await Promise.all([
                 _supabase.from('agenda_config').select('*').eq('id', 1).maybeSingle(),
                 _supabase.from('agenda_bloqueada').select('data_interditada'),
@@ -235,7 +250,6 @@
             document.getElementById('section-horarios').classList.remove('hidden');
             document.getElementById('display-date').innerText = data.split('-').reverse().join('/');
             
-            // Bypass de cache na busca de ocupados
             const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data_atendimento', data).not('status', 'eq', 'Cancelado');
             const ocupadosList = ocupados?.map(o => o.horario.substring(0, 5)) || [];
             
@@ -260,6 +274,9 @@
                 btn.innerText = hFormat;
                 
                 if (!isOcupado) btn.onclick = () => {
+                    // TRAVA AO CLICAR: Verifica se o horário não passou enquanto a página estava aberta
+                    if(!validarHorarioNoMomento(dataSelecionada, hFormat)) return;
+
                     document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('time-selected'));
                     btn.classList.add('time-selected'); horaSelecionada = hFormat;
                 };
@@ -289,7 +306,9 @@
             
             if(!n || z.length < 14 || !dataSelecionada || !horaSelecionada || svs.length === 0) return alert("Preencha tudo! 💅");
 
-            // Feedback visual de carregamento
+            // SEGUNDA TRAVA: Verifica no momento do envio do formulário
+            if(!validarHorarioNoMomento(dataSelecionada, horaSelecionada)) return;
+
             btn.disabled = true;
             btn.classList.add('opacity-50');
             btnText.innerText = "Sincronizando agendamento...";
