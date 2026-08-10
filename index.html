@@ -208,7 +208,7 @@
                 const minutesAgora = (agora.getHours() * 60) + agora.getMinutes();
                 if (minutesSelecionado <= minutesAgora) {
                     alert("⚠️ Esse horário expirou! Atualizando horários...");
-                    window.location.reload();
+                    await carregarHorariosElementoSelecionado();
                     return false;
                 }
             }
@@ -232,12 +232,49 @@
             }
 
             if (!horariosReaisPermitidos.includes(horaS)) {
-                alert("⚠️ Os horários foram atualizados. Por favor, escolha novamente na lista.");
-                window.location.reload();
+                alert("⚠️ Os horários deste dia foram alterados. Por favor, escolha outro horário.");
+                await carregarHorariosElementoSelecionado();
+                return false;
+            }
+
+            // 1. Verifica se já existe agendamento ativo nesse horário exato
+            const { data: ocupadoCheck } = await _supabase.from('agendamentos')
+                .select('id')
+                .eq('data_atendimento', dataS)
+                .eq('horario', horaS)
+                .not('status', 'eq', 'Cancelado')
+                .maybeSingle();
+
+            if (ocupadoCheck) {
+                alert("⚠️ Ops! Este horário acabou de ser reservado por outra cliente. Escolha outro horário disponível.");
+                horaSelecionada = null;
+                await carregarHorariosElementoSelecionado();
+                return false;
+            }
+
+            // 2. Verifica se o horário foi bloqueado pontualmente pelo Admin
+            const { data: bloqueioPontualCheck } = await _supabase.from('horarios_bloqueados_pontuais')
+                .select('id')
+                .eq('data', dataS)
+                .eq('horario', horaS)
+                .maybeSingle();
+
+            if (bloqueioPontualCheck) {
+                alert("⚠️ Ops! Este horário foi bloqueado recentemente pela administração. Escolha outro horário.");
+                horaSelecionada = null;
+                await carregarHorariosElementoSelecionado();
                 return false;
             }
 
             return true;
+        }
+
+        async function carregarHorariosElementoSelecionado() {
+            if (!dataSelecionada) return;
+            const element = document.querySelector(`.day-selected`);
+            if (element) {
+                await carregarHorarios(element, dataSelecionada);
+            }
         }
 
         async function init() {
@@ -320,11 +357,11 @@
             document.getElementById('section-horarios').classList.remove('hidden');
             document.getElementById('display-date').innerText = data.split('-').reverse().join('/');
             
-            // Buscar agendamentos do dia
+            // Buscar agendamentos do dia em tempo real
             const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data_atendimento', data).not('status', 'eq', 'Cancelado');
             const ocupadosList = ocupados?.map(o => o.horario.substring(0, 5)) || [];
 
-            // Buscar horários pontuais inativados pelo painel admin (ex: 12:00)
+            // Buscar horários pontuais inativados pelo painel admin
             const { data: inativadosData } = await _supabase.from('horarios_bloqueados_pontuais').select('horario').eq('data', data);
             const horariosInativados = (inativadosData || []).map(i => i.horario.substring(0, 5));
 
@@ -383,21 +420,23 @@
             const anivers = document.getElementById('aniversario_input').value.trim();
             const svs = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
             
-            if(!n || z.length < 14 || !dataSelecionada || !horaSelecionada || svs.length === 0) return alert("Preencha todos os campos obrigatórios! 💅");
+            if(!n || z.length < 14 || !dataSelecionada || !horaSelecionada || svs.length === 0) return alert("Preencha todos os campos obrigatórios e escolha um horário! 💅");
             if(anivers.length > 0 && anivers.length < 5) return alert("Por favor, insira o aniversário completo (DD/MM) ou deixe em branco! 🎂");
             
             btn.disabled = true;
-            btnText.innerText = "Verificando disponibilidade...";
+            btnText.innerText = "Verificando disponibilidade em tempo real...";
             
+            // BLINDAGEM CONTRA CONCORRÊNCIA: Valida rigorosamente no banco antes de salvar
             const validoFinal = await validarHorarioNoMomento(dataSelecionada, horaSelecionada);
             if(!validoFinal) {
                 btn.disabled = false;
+                btn.classList.remove('opacity-50');
                 btnText.innerText = "Envie o Comprovante Aqui 💅";
                 return;
             }
 
             btn.classList.add('opacity-50');
-            btnText.innerText = "Sincronizando agendamento...";
+            btnText.innerText = "Registrando agendamento...";
 
             const totalStr = document.getElementById('totalDisplay').innerText;
             const aniversarioSalvar = anivers.length === 5 ? anivers : null;
@@ -414,13 +453,15 @@
              }]);
 
             if(!error) {
-                const msg = `Agendamento Rivi Silva 💅\n\nNome: ${n.toUpperCase()}\nData: ${dataSelecionada.split('-').reverse().join('/')}\nHora: ${horaSelecionada}\nServiços: ${svs.join(", ")}\nTotal: ${totalStr}\n\nsegue o meu comprovante com o sinal para garantir o meu agendamento!`;
+                const msg = `Agendamento Rivi Silva 💅\n\nNome: ${n.toUpperCase()}\nData: ${dataSelecionada.split('-').reverse().join('/')}\nHora: ${horaSelecionada}\nServiços: ${svs.join(", ")}\nTotal: ${totalStr}\n\nSegue o meu comprovante com o sinal para garantir o meu agendamento!`;
                 window.location.href = `https://api.whatsapp.com/send?phone=5571992447638&text=${encodeURIComponent(msg)}`;
             } else { 
-                alert("Erro ao agendar. Tente novamente.");
+                // Caso caia aqui por duplicidade de índice no banco
+                alert("⚠️ Este horário acabou de ser ocupado por outra cliente! Por favor, selecione outro horário.");
                 btn.disabled = false;
                 btn.classList.remove('opacity-50');
                 btnText.innerText = "Envie o Comprovante Aqui 💅";
+                await carregarHorariosElementoSelecionado();
             }
         }
         init();
