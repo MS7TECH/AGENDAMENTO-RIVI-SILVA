@@ -66,16 +66,51 @@
 
     <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
-        <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start lg:pr-10">
-            <img id="carouselImg" src="foto_perfil.jpg" alt="Rivi Silva" class="perfil-img w-full lg:w-1/2 rounded-3xl lg:rounded-none transition-opacity duration-500 opacity-100">
-            <div class="flex flex-col gap-6 mt-4 lg:mt-20">
-                <h2 class="text-4xl md:text-5xl font-light text-zinc-900 leading-tight text-center lg:text-left">
-                    Seu momento de brilhar começa aqui! <span class="font-semibold gold-text"> 💅</span>
-                </h2>
-                <p class="text-zinc-600 text-lg italic border-l-2 border-[#D4AF37] pl-4">"Unhas feitas, auto-estima renovada."</p>
+        <!-- Coluna Esquerda: Mantém o Carrossel e textos originais intactos + Adição do Catálogo -->
+        <div class="flex flex-col gap-6 items-center lg:items-start lg:pr-10">
+            <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full">
+                <img id="carouselImg" src="foto_perfil.jpg" alt="Rivi Silva" class="perfil-img w-full lg:w-1/2 rounded-3xl lg:rounded-none transition-opacity duration-500 opacity-100">
+                <div class="flex flex-col gap-6 mt-4 lg:mt-20">
+                    <h2 class="text-4xl md:text-5xl font-light text-zinc-900 leading-tight text-center lg:text-left">
+                        Seu momento de brilhar começa aqui! <span class="font-semibold gold-text"> 💅</span>
+                    </h2>
+                    <p class="text-zinc-600 text-lg italic border-l-2 border-[#D4AF37] pl-4">"Unhas feitas, auto-estima renovada."</p>
+                </div>
+            </div>
+
+            <!-- NOVA SEÇÃO: Catálogo de Inspirações (FT1 até FT23) -->
+            <div class="w-full clean-card p-6 rounded-3xl space-y-4 mt-4">
+                <div class="text-center space-y-1">
+                    <h3 class="text-lg font-semibold gold-text uppercase tracking-widest flex items-center justify-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Catálogo de Inspirações
+                    </h3>
+                    <p class="text-xs text-zinc-500">Se se interessou por algum modelo, tire um print e mande no nosso zap para mais informações!</p>
+                </div>
+
+                <!-- Grid com as fotos FT1 até FT23 -->
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-96 overflow-y-auto pr-1">
+                    <!-- Script gerador automático das 23 fotos para o código ficar limpo -->
+                    <script>
+                        for(let i = 1; i <= 23; i++) {
+                            document.write(`
+                                <div class="relative group rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50 aspect-square shadow-sm">
+                                    <img src="FT${i}.jpeg" alt="Design ${i}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1 text-center">
+                                        <span class="text-[9px] text-white font-bold uppercase tracking-wider">Print & Zap 💅</span>
+                                    </div>
+                                </div>
+                            `);
+                        }
+                    </script>
+                </div>
+
+                <a href="https://api.whatsapp.com/send?phone=5571992447638&text=Olá!%20Me%20interessei%20por%20um%20modelo%20do%20catálogo,%20segue%20o%20print!" target="_blank" class="w-full bg-zinc-900 text-white font-bold py-3 rounded-xl shadow-md uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <i data-lucide="smartphone" class="w-4 h-4 text-[#D4AF37]"></i> Enviar Print no WhatsApp
+                </a>
             </div>
         </div>
 
+        <!-- Coluna Direita: Sistema de Agendamento Original -->
         <div class="w-full clean-card p-6 md:p-10 rounded-3xl space-y-6">
             <h3 class="text-xl font-semibold gold-text text-center uppercase tracking-widest mb-6">Solicitar Agendamento</h3>
 
@@ -237,7 +272,6 @@
                 return false;
             }
 
-            // 1. Verifica se já existe agendamento ativo nesse horário exato
             const { data: ocupadoCheck } = await _supabase.from('agendamentos')
                 .select('id')
                 .eq('data_atendimento', dataS)
@@ -252,7 +286,6 @@
                 return false;
             }
 
-            // 2. Verifica se o horário foi bloqueado pontualmente pelo Admin
             const { data: bloqueioPontualCheck } = await _supabase.from('horarios_bloqueados_pontuais')
                 .select('id')
                 .eq('data', dataS)
@@ -357,11 +390,9 @@
             document.getElementById('section-horarios').classList.remove('hidden');
             document.getElementById('display-date').innerText = data.split('-').reverse().join('/');
             
-            // Buscar agendamentos do dia em tempo real
             const { data: ocupados } = await _supabase.from('agendamentos').select('horario').eq('data_atendimento', data).not('status', 'eq', 'Cancelado');
             const ocupadosList = ocupados?.map(o => o.horario.substring(0, 5)) || [];
 
-            // Buscar horários pontuais inativados pelo painel admin
             const { data: inativadosData } = await _supabase.from('horarios_bloqueados_pontuais').select('horario').eq('data', data);
             const horariosInativados = (inativadosData || []).map(i => i.horario.substring(0, 5));
 
@@ -426,7 +457,6 @@
             btn.disabled = true;
             btnText.innerText = "Verificando disponibilidade em tempo real...";
             
-            // BLINDAGEM CONTRA CONCORRÊNCIA: Valida rigorosamente no banco antes de salvar
             const validoFinal = await validarHorarioNoMomento(dataSelecionada, horaSelecionada);
             if(!validoFinal) {
                 btn.disabled = false;
@@ -456,7 +486,6 @@
                 const msg = `Agendamento Rivi Silva 💅\n\nNome: ${n.toUpperCase()}\nData: ${dataSelecionada.split('-').reverse().join('/')}\nHora: ${horaSelecionada}\nServiços: ${svs.join(", ")}\nTotal: ${totalStr}\n\nSegue o meu comprovante com o sinal para garantir o meu agendamento!`;
                 window.location.href = `https://api.whatsapp.com/send?phone=5571992447638&text=${encodeURIComponent(msg)}`;
             } else { 
-                // Caso caia aqui por duplicidade de índice no banco
                 alert("⚠️ Este horário acabou de ser ocupado por outra cliente! Por favor, selecione outro horário.");
                 btn.disabled = false;
                 btn.classList.remove('opacity-50');
