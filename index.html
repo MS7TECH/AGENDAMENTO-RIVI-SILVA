@@ -39,6 +39,32 @@
         @media (max-width: 1024px) { .perfil-img { mask-image: linear-gradient(to bottom, black 70%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%); height: 350px; width: 100%; } }
 
         .marquee-container { position: absolute; left: 2.75rem; top: 50%; transform: translateY(-50%); right: 1rem; pointer-events: none; display: flex; align-items: center; }
+
+        /* Estilo para o carrossel horizontal das inspirações */
+        .inspiration-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+        }
+        .inspiration-carousel::-webkit-scrollbar {
+            height: 6px;
+        }
+        .inspiration-carousel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .inspiration-carousel::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 10px;
+        }
+        .inspiration-item {
+            flex: 0 0 110px;
+            scroll-snap-align: start;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex flex-col items-center min-h-screen">
@@ -66,7 +92,7 @@
 
     <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
-        <!-- Coluna Esquerda: Mantém o Carrossel e textos originais intactos + Adição do Catálogo -->
+        <!-- Coluna Esquerda: Carrossel de Perfil Original + Carrossel de Inspirações (FT1 a FT23) -->
         <div class="flex flex-col gap-6 items-center lg:items-start lg:pr-10">
             <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full">
                 <img id="carouselImg" src="foto_perfil.jpg" alt="Rivi Silva" class="perfil-img w-full lg:w-1/2 rounded-3xl lg:rounded-none transition-opacity duration-500 opacity-100">
@@ -78,22 +104,21 @@
                 </div>
             </div>
 
-            <!-- NOVA SEÇÃO: Catálogo de Inspirações (FT1 até FT23) -->
+            <!-- NOVA SEÇÃO: Carrossel Horizontal de Inspirações (FT1 até FT23) -->
             <div class="w-full clean-card p-6 rounded-3xl space-y-4 mt-4">
                 <div class="text-center space-y-1">
                     <h3 class="text-lg font-semibold gold-text uppercase tracking-widest flex items-center justify-center gap-2">
                         <i data-lucide="sparkles" class="w-4 h-4"></i> Catálogo de Inspirações
                     </h3>
-                    <p class="text-xs text-zinc-500">Se se interessou por algum modelo, tire um print e mande no nosso zap para mais informações!</p>
+                    <p class="text-xs text-zinc-500">Arraste para o lado para ver os modelos. Curtiu algum? Tire um print e mande no WhatsApp!</p>
                 </div>
 
-                <!-- Grid com as fotos FT1 até FT23 -->
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-96 overflow-y-auto pr-1">
-                    <!-- Script gerador automático das 23 fotos para o código ficar limpo -->
+                <!-- Container do Carrossel Arrastável -->
+                <div class="inspiration-carousel pt-2">
                     <script>
                         for(let i = 1; i <= 23; i++) {
                             document.write(`
-                                <div class="relative group rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50 aspect-square shadow-sm">
+                                <div class="inspiration-item relative group rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-50 aspect-square shadow-sm flex-shrink-0">
                                     <img src="FT${i}.jpeg" alt="Design ${i}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1 text-center">
                                         <span class="text-[9px] text-white font-bold uppercase tracking-wider">Print & Zap 💅</span>
