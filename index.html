@@ -64,6 +64,7 @@
         .inspiration-item {
             flex: 0 0 110px;
             scroll-snap-align: start;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -92,7 +93,7 @@
 
     <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
-        <!-- Coluna Esquerda: Carrossel de Perfil Original + Carrossel de Inspirações (FT1 a FT23) -->
+        <!-- Coluna Esquerda -->
         <div class="flex flex-col gap-6 items-center lg:items-start lg:pr-10">
             <div class="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full">
                 <img id="carouselImg" src="foto_perfil.jpg" alt="Rivi Silva" class="perfil-img w-full lg:w-1/2 rounded-3xl lg:rounded-none transition-opacity duration-500 opacity-100">
@@ -104,13 +105,13 @@
                 </div>
             </div>
 
-            <!-- NOVA SEÇÃO: Carrossel Horizontal de Inspirações (FT1 até FT23) -->
+            <!-- Carrossel de Inspirações com Zoom -->
             <div class="w-full clean-card p-6 rounded-3xl space-y-4 mt-4">
                 <div class="text-center space-y-1">
                     <h3 class="text-lg font-semibold gold-text uppercase tracking-widest flex items-center justify-center gap-2">
                         <i data-lucide="sparkles" class="w-4 h-4"></i> Catálogo de Inspirações
                     </h3>
-                    <p class="text-xs text-zinc-500">Arraste para o lado para ver os modelos. Curtiu algum? Tire um print e mande no WhatsApp!</p>
+                    <p class="text-xs text-zinc-500">Clique na foto para ampliar, tire um print e mande no WhatsApp!</p>
                 </div>
 
                 <!-- Container do Carrossel Arrastável -->
@@ -118,10 +119,10 @@
                     <script>
                         for(let i = 1; i <= 23; i++) {
                             document.write(`
-                                <div class="inspiration-item relative group rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-50 aspect-square shadow-sm flex-shrink-0">
+                                <div onclick="abrirModal('FT${i}.jpeg')" class="inspiration-item relative group rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-50 aspect-square shadow-sm flex-shrink-0">
                                     <img src="FT${i}.jpeg" alt="Design ${i}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1 text-center">
-                                        <span class="text-[9px] text-white font-bold uppercase tracking-wider">Print & Zap 💅</span>
+                                        <span class="text-[9px] text-white font-bold uppercase tracking-wider">Ampliar 🔍</span>
                                     </div>
                                 </div>
                             `);
@@ -135,7 +136,7 @@
             </div>
         </div>
 
-        <!-- Coluna Direita: Sistema de Agendamento Original -->
+        <!-- Coluna Direita: Agendamento Original -->
         <div class="w-full clean-card p-6 md:p-10 rounded-3xl space-y-6">
             <h3 class="text-xl font-semibold gold-text text-center uppercase tracking-widest mb-6">Solicitar Agendamento</h3>
 
@@ -213,6 +214,19 @@
         </div>
     </main>
 
+    <!-- Modal para Ampliar a Foto -->
+    <div id="fotoModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="fecharModal()">
+        <div class="relative max-w-lg w-full flex flex-col items-center" onclick="event.stopPropagation()">
+            <button onclick="fecharModal()" class="absolute -top-12 right-0 text-white hover:text-[#D4AF37] transition-colors p-2">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+            <img id="imgModalSrc" src="" alt="Inspiração Ampliada" class="w-full max-h-[80vh] object-contain rounded-2xl border border-zinc-700 shadow-2xl bg-black">
+            <p class="text-white text-xs font-semibold mt-3 tracking-widest uppercase text-center bg-zinc-900/80 px-4 py-2 rounded-full border border-zinc-800">
+                📸 Tire um print e envie no WhatsApp!
+            </p>
+        </div>
+    </div>
+
     <script>
         const supabaseUrl = 'https://rahubkowehwtvditbhlx.supabase.co';
         const supabaseKey = 'sb_publishable_wKbs4gYVURdIR6Cafm8qFA_tUZZTIKo'; 
@@ -222,6 +236,15 @@
         let configPadrao = { inicio: '09:00', fim: '18:00', intervalo: 40 };
         let bloqueios = [], excecoes = {};
         let mesVisualizado = new Date();
+
+        function abrirModal(src) {
+            document.getElementById('imgModalSrc').src = src;
+            document.getElementById('fotoModal').classList.remove('hidden');
+        }
+
+        function fecharModal() {
+            document.getElementById('fotoModal').classList.add('hidden');
+        }
 
         function nameMask(v) {
             return v.replace(/[^a-zA-ZÀ-ÿ\s]/g, "");
