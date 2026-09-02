@@ -40,7 +40,6 @@
 
         .marquee-container { position: absolute; left: 2.75rem; top: 50%; transform: translateY(-50%); right: 1rem; pointer-events: none; display: flex; align-items: center; }
 
-        /* Estilo para o carrossel horizontal das inspirações */
         .inspiration-carousel {
             display: flex;
             overflow-x: auto;
@@ -363,6 +362,16 @@
             await atualizarCalendario();
             if (window.lucide) lucide.createIcons();
             
+            // Ouve em tempo real alterações na tabela de agendamentos e bloqueios para atualizar os horários criados instantaneamente
+            _supabase.channel('public:agendamentos_e_bloqueios')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos' }, () => {
+                    if (dataSelecionada) carregarHorariosElementoSelecionado();
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'horarios_bloqueados_pontuais' }, () => {
+                    if (dataSelecionada) carregarHorariosElementoSelecionado();
+                })
+                .subscribe();
+
             let currentImgIndex = 0;
             const imagesList = ["foto_perfil.jpg", "foto_perfil2.jpg", "foto_perfil3.jpg", "foto_perfil4.jpg"];
             const imgElement = document.getElementById("carouselImg");
@@ -545,3 +554,4 @@
     </script>
 </body>
 </html>
+
